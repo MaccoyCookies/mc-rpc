@@ -9,12 +9,14 @@
         <outputRelativeToContentRoot value="true" />
         <module name="mc-rpc-core" />
         <module name="mc-rpc-demo-api" />
+        <module name="mc-rpc-consumer" />
         <module name="mc-rpc-provider" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="mc-rpc-consumer" options="-parameters" />
       <module name="mc-rpc-core" options="-parameters" />
       <module name="mc-rpc-demo-api" options="-parameters" />
       <module name="mc-rpc-provider" options="-parameters" />

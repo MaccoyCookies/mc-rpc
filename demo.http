@@ -1,0 +1,19 @@
+POST http://localhost:7001/
+Content-Type: application/json
+
+{
+  "service": "com.maccoy.mcrpc.demo.api.IUserService",
+  "method": "selectUserById",
+  "args": [100]
+}
+
+###
+
+POST http://localhost:7001/
+Content-Type: application/json
+
+{
+  "service": "com.maccoy.mcrpc.demo.api.IOrderService",
+  "method": "selectOrderById",
+  "args": [200]
+}

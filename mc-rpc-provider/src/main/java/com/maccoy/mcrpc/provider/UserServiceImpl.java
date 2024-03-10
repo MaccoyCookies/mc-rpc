@@ -10,7 +10,17 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements IUserService {
 
     @Override
-    public User selectUserById(Long id) {
+    public User selectUserById(Integer id) {
         return new User(id, "Mc-" + System.currentTimeMillis());
+    }
+
+    @Override
+    public Integer getId(Integer id) {
+        return id;
+    }
+
+    @Override
+    public String getName(String name) {
+        return "mc";
     }
 }
