@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.maccoy.mcrpc.core.api.RpcRequest;
 import com.maccoy.mcrpc.core.api.RpcResponse;
+import com.maccoy.mcrpc.core.util.MethodUtils;
 import okhttp3.ConnectionPool;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -39,7 +40,7 @@ public class McInvocationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         RpcRequest rpcRequest = new RpcRequest();
         rpcRequest.setService(service.getCanonicalName());
-        rpcRequest.setMethod(method.getName());
+        rpcRequest.setMethodSign(MethodUtils.methodSign(method));
         rpcRequest.setArgs(args);
         RpcResponse rpcResponse = post(rpcRequest);
         if (rpcResponse.isStatus()) {

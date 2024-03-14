@@ -4,7 +4,11 @@ public interface IUserService {
 
     User selectUserById(Integer id);
 
+    User selectUserById(Integer id, String name);
+
     Integer getId(Integer id);
 
     String getName(String name);
+
+    String getName(Integer id);
 }

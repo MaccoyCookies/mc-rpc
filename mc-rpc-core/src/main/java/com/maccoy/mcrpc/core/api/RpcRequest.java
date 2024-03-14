@@ -15,7 +15,7 @@ public class RpcRequest {
      * 方法
      * selectUserById
      */
-    private String method;
+    private String methodSign;
 
     /**
      * 参数

@@ -1,19 +1,21 @@
+### 原始请求
+
 POST http://localhost:7001/
 Content-Type: application/json
 
 {
   "service": "com.maccoy.mcrpc.demo.api.IUserService",
-  "method": "selectUserById",
+  "methodSign": "selectUserById@1_java.lang.Integer",
   "args": [100]
 }
 
-###
+### 重载方法请求
 
 POST http://localhost:7001/
 Content-Type: application/json
 
 {
-  "service": "com.maccoy.mcrpc.demo.api.IOrderService",
-  "method": "selectOrderById",
-  "args": [200]
+  "service": "com.maccoy.mcrpc.demo.api.IUserService",
+  "methodSign": "selectUserById@2_java.lang.Integer_java.lang.String",
+  "args": [200, "Maccoy"]
 }

@@ -15,6 +15,11 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    public User selectUserById(Integer id, String name) {
+        return new User(id, "Mc-" + name + System.currentTimeMillis());
+    }
+
+    @Override
     public Integer getId(Integer id) {
         return id;
     }
@@ -22,5 +27,10 @@ public class UserServiceImpl implements IUserService {
     @Override
     public String getName(String name) {
         return "mc";
+    }
+
+    @Override
+    public String getName(Integer id) {
+        return "Mc-" + id;
     }
 }
