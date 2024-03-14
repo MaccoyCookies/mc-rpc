@@ -6,7 +6,9 @@ public interface IUserService {
 
     User selectUserById(Integer id, String name);
 
-    Integer getId(Integer id);
+//    Integer getId(Integer id);
+
+    Long getId(long id);
 
     String getName(String name);
 

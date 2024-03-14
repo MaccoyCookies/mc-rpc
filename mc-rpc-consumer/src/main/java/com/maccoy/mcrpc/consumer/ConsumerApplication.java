@@ -28,15 +28,15 @@ public class ConsumerApplication {
     @Bean
     ApplicationRunner demoRunner() {
         return runner -> {
-            System.out.println(userService.selectUserById(19));
-
-            System.out.println(userService.selectUserById(19, "maccoy"));
-
+//            System.out.println(userService.selectUserById(19));
+//
+//            System.out.println(userService.selectUserById(19, "maccoy"));
+//
             System.out.println(userService.getId(19));
-
-            System.out.println(userService.getName("mc"));
-
-            System.out.println(userService.getName(19));
+//
+//            System.out.println(userService.getName("mc"));
+//
+//            System.out.println(userService.getName(19));
         };
     }
 

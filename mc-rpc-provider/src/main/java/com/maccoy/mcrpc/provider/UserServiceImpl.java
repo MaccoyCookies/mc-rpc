@@ -19,8 +19,13 @@ public class UserServiceImpl implements IUserService {
         return new User(id, "Mc-" + name + System.currentTimeMillis());
     }
 
+//    @Override
+//    public Integer getId(Integer id) {
+//        return id;
+//    }
+
     @Override
-    public Integer getId(Integer id) {
+    public Long getId(long id) {
         return id;
     }
 

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.maccoy.mcrpc.core.api.RpcRequest;
 import com.maccoy.mcrpc.core.api.RpcResponse;
 import com.maccoy.mcrpc.core.util.MethodUtils;
+import com.maccoy.mcrpc.core.util.TypeUtils;
 import okhttp3.ConnectionPool;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -48,7 +49,7 @@ public class McInvocationHandler implements InvocationHandler {
                 JSONObject data = (JSONObject) rpcResponse.getData();
                 return data.toJavaObject(method.getReturnType());
             } else {
-                return rpcResponse.getData();
+                return TypeUtils.cast(rpcResponse.getData(), method.getReturnType());
             }
         }
         throw new RuntimeException(rpcResponse.getException());
