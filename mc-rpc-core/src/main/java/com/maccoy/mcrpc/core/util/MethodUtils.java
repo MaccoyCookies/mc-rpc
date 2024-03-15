@@ -5,14 +5,16 @@ import java.util.Arrays;
 
 public class MethodUtils {
 
-    public static boolean checkLocalMethod(final String method) {
-        return "toString".equals(method)
-                || "hashCode".equals(method)
-                || "notifyAll".equals(method)
-                || "equals".equals(method)
-                || "wait".equals(method)
-                || "getClass".equals(method)
-                || "notify".equals(method);
+    public static boolean checkLocalMethod(final String methodName) {
+        return "toString".equals(methodName)
+                || "hashCode".equals(methodName)
+                || "notifyAll".equals(methodName)
+                || "equals".equals(methodName)
+                || "wait".equals(methodName)
+                || "getClass".equals(methodName)
+                || "notify".equals(methodName)
+                || "finalize".equals(methodName)
+                || "clone".equals(methodName);
     }
 
     public static boolean checkLocalMethod(final Method method) {

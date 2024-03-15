@@ -28,6 +28,17 @@ public class ConsumerBootstrap implements ApplicationContextAware {
         String[] names = applicationContext.getBeanDefinitionNames();
         for (String name : names) {
             Object bean = applicationContext.getBean(name);
+            String packageName = bean.getClass().getPackageName();
+            if (packageName.startsWith("org.springframework")
+                    || packageName.startsWith("java.")
+                    || packageName.startsWith("javax.")
+                    || packageName.startsWith("jdk.")
+                    || packageName.startsWith("com.fasterxml.")
+                    || packageName.startsWith("com.sun.")
+                    || packageName.startsWith("jakarta.")
+                    || packageName.startsWith("org.apache")) {
+                continue;
+            }
             List<Field> fields = findAnnotatedField(bean.getClass());
             for (Field field : fields) {
                 try {

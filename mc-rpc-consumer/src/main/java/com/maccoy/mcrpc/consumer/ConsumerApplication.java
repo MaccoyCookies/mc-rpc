@@ -11,6 +11,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Maccoy
@@ -42,14 +44,39 @@ public class ConsumerApplication {
 //            System.out.println(userService.getId(new User(19, "Mc")));
 //
 //            System.out.println(Arrays.toString(userService.getIds()));
-
-            System.out.println(Arrays.toString(userService.getIds(new Integer[]{7, 8, 9})));
-
+//
+//            System.out.println(Arrays.toString(userService.getIds(new Integer[]{7, 8, 9})));
+//
 //            System.out.println(Arrays.toString(userService.getLongIds()));
 //
 //            System.out.println(userService.getName("mc"));
 //
 //            System.out.println(userService.getName(19));
+
+
+            System.out.println(userService.paramMap(new HashMap<String, String>(){
+                {
+                    put("name", "Mc");
+                }
+            }));
+
+            System.out.println(userService.paramBean(new User(19, "Mc")));
+            System.out.println(userService.paramInt(19));
+            System.out.println(userService.paramLong(19));
+            System.out.println(userService.paramFloat(19f));
+            System.out.println(userService.paramDouble(19f));
+            System.out.println(userService.paramString("Mc"));
+            System.out.println(userService.paramArray(new int[]{1, 2, 3}));
+            System.out.println(userService.paramList(List.of(4, 5, 6)));
+            System.out.println(userService.paramMapObject(new HashMap<Object, Object>(){
+                {
+                    put("age", 19);
+                    put("name", "Mc");
+                    put(19, 19);
+                }
+            }));
+            System.out.println(userService.paramNull());
+
         };
     }
 
