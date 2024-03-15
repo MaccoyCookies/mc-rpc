@@ -1,6 +1,7 @@
 package com.maccoy.mcrpc.core.consumer;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.maccoy.mcrpc.core.api.RpcRequest;
 import com.maccoy.mcrpc.core.api.RpcResponse;
@@ -12,8 +13,10 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -45,9 +48,16 @@ public class McInvocationHandler implements InvocationHandler {
         rpcRequest.setArgs(args);
         RpcResponse rpcResponse = post(rpcRequest);
         if (rpcResponse.isStatus()) {
-            if (rpcResponse.getData() instanceof JSONObject) {
-                JSONObject data = (JSONObject) rpcResponse.getData();
-                return data.toJavaObject(method.getReturnType());
+            if (rpcResponse.getData() instanceof JSONObject jsonObject) {
+                return jsonObject.toJavaObject(method.getReturnType());
+            } else if (rpcResponse.getData() instanceof JSONArray jsonArray) {
+                Object[] arr = jsonArray.toArray();
+                Class<?> componentType = method.getReturnType().getComponentType();
+                Object resArray = Array.newInstance(componentType, arr.length);
+                for (int i = 0; i < arr.length; i++) {
+                    Array.set(resArray, i, arr[i]);
+                }
+                return resArray;
             } else {
                 return TypeUtils.cast(rpcResponse.getData(), method.getReturnType());
             }
@@ -62,6 +72,7 @@ public class McInvocationHandler implements InvocationHandler {
                 .post(RequestBody.create(requestJson, JSON_TYPE)).build();
         try {
             String responseJson = client.newCall(request).execute().body().string();
+            System.out.println("response: " + responseJson);
             return JSON.parseObject(responseJson, RpcResponse.class);
         } catch (Exception exception) {
             exception.printStackTrace();

@@ -10,6 +10,16 @@ public interface IUserService {
 
     Long getId(long id);
 
+    Long getId(float id);
+
+    Long getId(User user);
+
+    Integer[] getIds();
+
+    Integer[] getIds(Integer[] ids);
+
+    long[] getLongIds();
+
     String getName(String name);
 
     String getName(Integer id);

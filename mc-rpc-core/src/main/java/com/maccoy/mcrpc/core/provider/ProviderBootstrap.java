@@ -5,6 +5,7 @@ import com.maccoy.mcrpc.core.api.RpcRequest;
 import com.maccoy.mcrpc.core.api.RpcResponse;
 import com.maccoy.mcrpc.core.meta.ProviderMeta;
 import com.maccoy.mcrpc.core.util.MethodUtils;
+import com.maccoy.mcrpc.core.util.TypeUtils;
 import jakarta.annotation.PostConstruct;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +64,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
         try {
             List<ProviderMeta> providerMetas = skeleton.get(request.getService());
             ProviderMeta providerMeta = findProviderMeta(providerMetas, request.getMethodSign());
-            Object res = providerMeta.getMethod().invoke(providerMeta.getServiceImpl(), request.getArgs());
+            Object[] args = processArgs(request.getArgs(), providerMeta.getMethod().getParameterTypes());
+            Object res = providerMeta.getMethod().invoke(providerMeta.getServiceImpl(), args);
             rpcResponse.setStatus(true);
             rpcResponse.setData(res);
             return rpcResponse;
@@ -72,6 +75,15 @@ public class ProviderBootstrap implements ApplicationContextAware {
             rpcResponse.setException(new RuntimeException(exception.getMessage()));
         }
         return rpcResponse;
+    }
+
+    private Object[] processArgs(Object[] args, Class<?>[] parameterTypes) {
+        if (args == null || args.length == 0) return args;
+        Object[] actualArray = new Object[args.length];
+        for (int i = 0; i < args.length; i++) {
+            actualArray[i] = TypeUtils.cast(args[i], parameterTypes[i]);
+        }
+        return actualArray;
     }
 
     private ProviderMeta findProviderMeta(List<ProviderMeta> providerMetas, String methodSign) {

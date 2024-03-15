@@ -24,9 +24,35 @@ public class UserServiceImpl implements IUserService {
 //        return id;
 //    }
 
+
+    @Override
+    public Long getId(float id) {
+        return 19L;
+    }
+
+    @Override
+    public Long getId(User user) {
+        return user.getId().longValue();
+    }
+
     @Override
     public Long getId(long id) {
         return id;
+    }
+
+    @Override
+    public Integer[] getIds() {
+        return new Integer[]{1, 2, 3};
+    }
+
+    @Override
+    public Integer[] getIds(Integer[] ids) {
+        return ids;
+    }
+
+    @Override
+    public long[] getLongIds() {
+        return new long[]{4, 5, 6};
     }
 
     @Override
