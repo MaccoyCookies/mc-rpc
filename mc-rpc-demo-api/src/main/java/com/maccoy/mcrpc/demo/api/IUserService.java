@@ -49,6 +49,8 @@ public interface IUserService {
 
     String paramNull();
 
+    List<User> paramListBean(List<User> users);
+
 
 
 }

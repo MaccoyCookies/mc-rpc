@@ -123,4 +123,9 @@ public class UserServiceImpl implements IUserService {
     public String paramNull() {
         return "response: null";
     }
+
+    @Override
+    public List<User> paramListBean(List<User> users) {
+        return users;
+    }
 }

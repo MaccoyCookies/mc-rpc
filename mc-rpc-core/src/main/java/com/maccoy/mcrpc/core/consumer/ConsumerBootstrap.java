@@ -1,9 +1,15 @@
 package com.maccoy.mcrpc.core.consumer;
 
 import com.maccoy.mcrpc.core.annotation.McConsumer;
+import com.maccoy.mcrpc.core.api.LoadBalancer;
+import com.maccoy.mcrpc.core.api.RegisterCenter;
+import com.maccoy.mcrpc.core.api.Router;
+import com.maccoy.mcrpc.core.api.RpcContext;
 import lombok.Data;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.EnvironmentAware;
+import org.springframework.core.env.Environment;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
@@ -18,13 +24,22 @@ import java.util.Map;
  * Description
  */
 @Data
-public class ConsumerBootstrap implements ApplicationContextAware {
+public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAware {
 
     private ApplicationContext applicationContext;
+
+    private Environment environment;
 
     private final Map<String, Object> stub = new HashMap<>();
 
     public void start() {
+
+        LoadBalancer loadBalancer = applicationContext.getBean(LoadBalancer.class);
+        Router router = applicationContext.getBean(Router.class);
+        RegisterCenter registerCenter = applicationContext.getBean(RegisterCenter.class);
+        RpcContext rpcContext = new RpcContext();
+        rpcContext.setRouter(router);
+        rpcContext.setLoadBalancer(loadBalancer);
         String[] names = applicationContext.getBeanDefinitionNames();
         for (String name : names) {
             Object bean = applicationContext.getBean(name);
@@ -45,7 +60,8 @@ public class ConsumerBootstrap implements ApplicationContextAware {
                     Class<?> service = field.getType();
                     String canonicalName = service.getCanonicalName();
                     if (stub.containsKey(canonicalName)) continue;
-                    Object consumer = createConsumer(service);
+                    // Object consumer = createConsumer(service, rpcContext, providers);
+                    Object consumer = createConsumerFromRegister(service, rpcContext, registerCenter);
                     field.setAccessible(true);
                     field.set(bean, consumer);
                 } catch (Exception exception) {
@@ -55,8 +71,14 @@ public class ConsumerBootstrap implements ApplicationContextAware {
         }
     }
 
-    private Object createConsumer(Class<?> service) {
-        return Proxy.newProxyInstance(service.getClassLoader(), new Class[]{service}, new McInvocationHandler(service));
+    private Object createConsumerFromRegister(Class<?> service, RpcContext rpcContext, RegisterCenter registerCenter) {
+        String serviceName = service.getCanonicalName();
+        List<String> providers = registerCenter.fetchAll(serviceName);
+        return createConsumer(service, rpcContext, providers);
+    }
+
+    private Object createConsumer(Class<?> service, RpcContext rpcContext, List<String> providers) {
+        return Proxy.newProxyInstance(service.getClassLoader(), new Class[]{service}, new McInvocationHandler(service, rpcContext, providers));
     }
 
     private List<Field> findAnnotatedField(Class<?> aClass) {

@@ -1,9 +1,15 @@
 package com.maccoy.mcrpc.core.consumer;
 
+import com.maccoy.mcrpc.core.api.LoadBalancer;
+import com.maccoy.mcrpc.core.api.RegisterCenter;
+import com.maccoy.mcrpc.core.api.Router;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+
+import java.util.List;
 
 /**
  * @author Maccoy
@@ -12,6 +18,9 @@ import org.springframework.core.annotation.Order;
  */
 @Configuration
 public class ConsumerConfig {
+
+    @Value("${mcrpc.providers}")
+    String servers;
 
     @Bean
     public ConsumerBootstrap createConsumerBootstrap() {
@@ -24,6 +33,21 @@ public class ConsumerConfig {
         return x -> {
             consumerBootstrap.start();
         };
+    }
+
+    @Bean
+    public LoadBalancer loadBalancer() {
+        return LoadBalancer.Default;
+    }
+
+    @Bean
+    public Router router() {
+        return Router.Default;
+    }
+
+    @Bean(initMethod = "start", destroyMethod = "stop")
+    public RegisterCenter registerCenter() {
+        return new RegisterCenter.StaticRegisterCenter(List.of(servers.split(",")));
     }
 
 }

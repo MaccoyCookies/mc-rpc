@@ -33,22 +33,22 @@ public class ProviderApplication {
         return providerBootstrap.invoke(request);
     }
 
-    @Bean
-    ApplicationRunner providerRun() {
-        return x -> {
-            RpcRequest rpcRequest = new RpcRequest();
-            rpcRequest.setService("com.maccoy.mcrpc.demo.api.IUserService");
-            rpcRequest.setMethodSign("selectUserById@1_java.lang.Integer");
-            rpcRequest.setArgs(new Object[]{100});
-            RpcResponse rpcResponse = providerBootstrap.invoke(rpcRequest);
-            System.out.println(rpcResponse);
-
-            RpcRequest rpcRequest2 = new RpcRequest();
-            rpcRequest2.setService("com.maccoy.mcrpc.demo.api.IUserService");
-            rpcRequest2.setMethodSign("selectUserById@2_java.lang.Integer_java.lang.String");
-            rpcRequest2.setArgs(new Object[]{100, "maccoy"});
-            RpcResponse rpcResponse2 = providerBootstrap.invoke(rpcRequest2);
-            System.out.println(rpcResponse2);
-        };
-    }
+    // @Bean
+    // ApplicationRunner providerRun() {
+    //     return x -> {
+    //         RpcRequest rpcRequest = new RpcRequest();
+    //         rpcRequest.setService("com.maccoy.mcrpc.demo.api.IUserService");
+    //         rpcRequest.setMethodSign("selectUserById@1_java.lang.Integer");
+    //         rpcRequest.setArgs(new Object[]{100});
+    //         RpcResponse rpcResponse = providerBootstrap.invoke(rpcRequest);
+    //         System.out.println(rpcResponse);
+    //
+    //         RpcRequest rpcRequest2 = new RpcRequest();
+    //         rpcRequest2.setService("com.maccoy.mcrpc.demo.api.IUserService");
+    //         rpcRequest2.setMethodSign("selectUserById@2_java.lang.Integer_java.lang.String");
+    //         rpcRequest2.setArgs(new Object[]{100, "maccoy"});
+    //         RpcResponse rpcResponse2 = providerBootstrap.invoke(rpcRequest2);
+    //         System.out.println(rpcResponse2);
+    //     };
+    // }
 }

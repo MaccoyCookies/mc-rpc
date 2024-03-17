@@ -19,3 +19,8 @@ Content-Type: application/json
   "methodSign": "selectUserById@2_java.lang.Integer_java.lang.String",
   "args": [200, "Maccoy"]
 }
+
+### 原始请求
+
+GET http://localhost:8001/test
+#Content-Type: application/json
