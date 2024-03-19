@@ -33,8 +33,4 @@ public interface IUserService {
 
 //    User findById(long id);
 
-    List<User> paramListBean(List<User> users);
-
-
-
 }

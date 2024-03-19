@@ -34,7 +34,7 @@ public class ConsumerApplication {
     @Bean
     ApplicationRunner demoRunner() {
         return runner -> {
-// 常规int类型，返回User对象
+            // 常规int类型，返回User对象
             System.out.println("Case 1. >>===[常规int类型，返回User对象]===");
             User user = userService.findById(1);
             System.out.println("RPC result userService.findById(1) = " + user);

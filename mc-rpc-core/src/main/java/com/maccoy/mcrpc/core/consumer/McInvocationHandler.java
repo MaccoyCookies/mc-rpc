@@ -57,6 +57,10 @@ public class McInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        if (MethodUtils.checkLocalMethod(method.getName())) {
+            return null;
+        }
+
         RpcRequest rpcRequest = new RpcRequest();
         rpcRequest.setService(service.getCanonicalName());
         rpcRequest.setMethodSign(MethodUtils.methodSign(method));
@@ -91,7 +95,12 @@ public class McInvocationHandler implements InvocationHandler {
                     Class<?> componentType = type.getComponentType();
                     Object resArray = Array.newInstance(componentType, arr.length);
                     for (int i = 0; i < arr.length; i++) {
-                        Array.set(resArray, i, arr[i]);
+                        if (componentType.isPrimitive() || componentType.getPackageName().startsWith("java")) {
+                            Array.set(resArray, i, arr[i]);
+                        } else {
+                            Object castObject = TypeUtils.cast(arr[i], componentType);
+                            Array.set(resArray, i, castObject);
+                        }
                     }
                     return resArray;
                 } else if (List.class.isAssignableFrom(type)) {
