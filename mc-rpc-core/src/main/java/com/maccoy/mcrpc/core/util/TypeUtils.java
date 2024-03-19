@@ -25,7 +25,12 @@ public class TypeUtils {
                 Class<?> componentType = type.getComponentType();
                 Object resArray = Array.newInstance(componentType, length);
                 for (int i = 0; i < length; i++) {
-                    Array.set(resArray, i, Array.get(origin, i));
+                    if (componentType.isPrimitive() || componentType.getPackageName().startsWith("java")) {
+                        Array.set(resArray, i, Array.get(origin, i));
+                    } else {
+                        Object castObject = cast(Array.get(origin, i), componentType);
+                        Array.set(resArray, i, castObject);
+                    }
                 }
                 return resArray;
             }

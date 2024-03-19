@@ -5,49 +5,33 @@ import java.util.Map;
 
 public interface IUserService {
 
-    User selectUserById(Integer id);
+    User findById(int id);
 
-    User selectUserById(Integer id, String name);
+    User findById(int id, String name);
 
-//    Integer getId(Integer id);
+    long getId(long id);
 
-    Long getId(long id);
+    long getId(User user);
 
-    Long getId(float id);
+    long getId(float id);
 
-    Long getId(User user);
+    String getName();
 
-    Integer[] getIds();
+    String getName(int id);
 
-    Integer[] getIds(Integer[] ids);
-
+    int[] getIds();
     long[] getLongIds();
+    int[] getIds(int[] ids);
 
-    String getName(String name);
+    User[] findUsers(User[] users);
 
-    String getName(Integer id);
+    List<User> getList(List<User> userList);
 
-    String paramMap(Map map);
+    Map<String, User> getMap(Map<String, User> userMap);
 
-    String paramBean(User user);
+    Boolean getFlag(boolean flag);
 
-    String paramInt(int id);
-
-    String paramLong(long id);
-
-    String paramFloat(float id);
-
-    String paramDouble(double id);
-
-    String paramString(String id);
-
-    String paramArray(int[] ids);
-
-    String paramList(List<Integer> ids);
-
-    String paramMapObject(Map<Object, Object> map);
-
-    String paramNull();
+//    User findById(long id);
 
 
 
