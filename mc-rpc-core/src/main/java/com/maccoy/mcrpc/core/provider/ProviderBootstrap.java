@@ -1,14 +1,18 @@
 package com.maccoy.mcrpc.core.provider;
 
 import com.maccoy.mcrpc.core.annotation.McProvider;
+import com.maccoy.mcrpc.core.api.RegisterCenter;
 import com.maccoy.mcrpc.core.api.RpcRequest;
 import com.maccoy.mcrpc.core.api.RpcResponse;
 import com.maccoy.mcrpc.core.meta.ProviderMeta;
 import com.maccoy.mcrpc.core.util.MethodUtils;
 import com.maccoy.mcrpc.core.util.TypeUtils;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.Data;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.LinkedMultiValueMap;
@@ -17,6 +21,7 @@ import org.springframework.util.MultiValueMap;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -35,12 +40,39 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private final MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
 
+    private String instance;
+
+    @Value("${server.port}")
+    private String port;
+
     @PostConstruct
-    public void buildProviders() {
+    public void init() {
         Map<String, Object> providers = applicationContext.getBeansWithAnnotation(McProvider.class);
         for (Map.Entry<String, Object> entry : providers.entrySet()) {
             genInterface(entry.getValue());
         }
+    }
+
+    @SneakyThrows
+    public void start() {
+        String ip = InetAddress.getLocalHost().getHostAddress();
+        this.instance = ip + "_" + port;
+        skeleton.keySet().forEach(this::registerService);
+    }
+
+    @PreDestroy
+    public void stop() {
+        skeleton.keySet().forEach(this::unregisterService);
+    }
+
+    private void registerService(String service) {
+        RegisterCenter registerCenter = applicationContext.getBean(RegisterCenter.class);
+        registerCenter.register(service, instance);
+    }
+
+    private void unregisterService(String service) {
+        RegisterCenter registerCenter = applicationContext.getBean(RegisterCenter.class);
+        registerCenter.unregister(service, instance);
     }
 
     private void genInterface(Object value) {

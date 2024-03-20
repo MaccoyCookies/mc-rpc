@@ -22,10 +22,13 @@ public class ZkRegistryCenter implements RegisterCenter {
     public void start() {
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         curatorFramework = CuratorFrameworkFactory.builder().connectString("localhost:2181").namespace("mcrpc").retryPolicy(retryPolicy).build();
+        System.out.println("zk start ...");
+        curatorFramework.start();
     }
 
     @Override
     public void stop() {
+        System.out.println("zk stop ...");
         curatorFramework.close();
     }
 
@@ -38,6 +41,7 @@ public class ZkRegistryCenter implements RegisterCenter {
             }
             String instancePath = servicePath + "/" + instance;
             curatorFramework.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, "provider".getBytes());
+            System.out.println("zk register ...");
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
@@ -53,6 +57,7 @@ public class ZkRegistryCenter implements RegisterCenter {
             }
             String instancePath = servicePath + "/" + instance;
             curatorFramework.delete().quietly().forPath(instancePath);
+            System.out.println("zk unregister ...");
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
