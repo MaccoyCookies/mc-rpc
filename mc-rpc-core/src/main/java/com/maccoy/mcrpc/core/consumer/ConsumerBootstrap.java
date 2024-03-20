@@ -5,6 +5,8 @@ import com.maccoy.mcrpc.core.api.LoadBalancer;
 import com.maccoy.mcrpc.core.api.RegisterCenter;
 import com.maccoy.mcrpc.core.api.Router;
 import com.maccoy.mcrpc.core.api.RpcContext;
+import com.maccoy.mcrpc.core.registry.ChangedListener;
+import com.maccoy.mcrpc.core.registry.Event;
 import lombok.Data;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -17,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Maccoy
@@ -73,8 +76,17 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private Object createConsumerFromRegister(Class<?> service, RpcContext rpcContext, RegisterCenter registerCenter) {
         String serviceName = service.getCanonicalName();
-        List<String> providers = registerCenter.fetchAll(serviceName);
+        List<String> providers = transferNodesToProvider(registerCenter.fetchAll(serviceName));
+        System.out.println("===> map to providers: " + providers);
+        registerCenter.subscribe(serviceName, event -> {
+            providers.clear();
+            providers.addAll(transferNodesToProvider(event.getData()));
+        });
         return createConsumer(service, rpcContext, providers);
+    }
+
+    private List<String> transferNodesToProvider(List<String> nodes) {
+        return nodes.stream().map(node -> "http://" + node.replace("_", ":")).collect(Collectors.toList());
     }
 
     private Object createConsumer(Class<?> service, RpcContext rpcContext, List<String> providers) {

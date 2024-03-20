@@ -16,11 +16,11 @@ Content-Type: application/json
 
 {
   "service": "com.maccoy.mcrpc.demo.api.IUserService",
-  "methodSign": "selectUserById@2_java.lang.Integer_java.lang.String",
-  "args": [200, "Maccoy"]
+  "methodSign": "findById@2_int",
+  "args": [19]
 }
 
 ### 原始请求
 
-GET http://localhost:8001/test
+GET http://localhost:8001/?id=19
 #Content-Type: application/json

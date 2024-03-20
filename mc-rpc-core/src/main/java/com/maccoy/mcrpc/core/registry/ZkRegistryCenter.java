@@ -1,9 +1,11 @@
 package com.maccoy.mcrpc.core.registry;
 
 import com.maccoy.mcrpc.core.api.RegisterCenter;
+import lombok.SneakyThrows;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 
@@ -41,7 +43,7 @@ public class ZkRegistryCenter implements RegisterCenter {
             }
             String instancePath = servicePath + "/" + instance;
             curatorFramework.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, "provider".getBytes());
-            System.out.println("zk register ...");
+            System.out.println("zk register ... " + servicePath);
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
@@ -65,6 +67,28 @@ public class ZkRegistryCenter implements RegisterCenter {
 
     @Override
     public List<String> fetchAll(String serviceName) {
-        return null;
+        String servicePath = "/" + serviceName;
+        try {
+            List<String> nodes = curatorFramework.getChildren().forPath(servicePath);
+            System.out.println("fetchAll from zk: " + servicePath);
+            nodes.forEach(System.out::println);
+            return nodes;
+        } catch (Exception exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    @SneakyThrows
+    @Override
+    public void subscribe(String service, ChangedListener listener) {
+        final TreeCache treeCache = TreeCache.newBuilder(curatorFramework, "/" + service).setCacheData(true).setMaxDepth(2).build();
+
+        treeCache.getListenable().addListener((curator, event) -> {
+            // 有任何节点变动
+            System.out.println("zk subscribe event: " + event);
+            List<String> nodes = fetchAll(service);
+            listener.fire(new Event(nodes));
+        });
+        treeCache.start();
     }
 }

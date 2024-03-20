@@ -9,6 +9,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,6 +22,7 @@ import java.util.Map;
  * @date 2024/3/10 11:08
  * Description
  */
+@RestController
 @SpringBootApplication
 @Import({ConsumerConfig.class})
 public class ConsumerApplication {
@@ -30,6 +33,11 @@ public class ConsumerApplication {
 
     @McConsumer
     IUserService userService;
+
+    @RequestMapping("/")
+    public User findBy(int id) {
+        return userService.findById(id);
+    }
 
     @Bean
     ApplicationRunner demoRunner() {

@@ -3,6 +3,7 @@ package com.maccoy.mcrpc.core.consumer;
 import com.maccoy.mcrpc.core.api.LoadBalancer;
 import com.maccoy.mcrpc.core.api.RegisterCenter;
 import com.maccoy.mcrpc.core.api.Router;
+import com.maccoy.mcrpc.core.registry.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -47,7 +48,7 @@ public class ConsumerConfig {
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     public RegisterCenter registerCenter() {
-        return new RegisterCenter.StaticRegisterCenter(List.of(servers.split(",")));
+        return new ZkRegistryCenter();
     }
 
 }

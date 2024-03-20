@@ -1,5 +1,7 @@
 package com.maccoy.mcrpc.core.api;
 
+import com.maccoy.mcrpc.core.registry.ChangedListener;
+
 import java.util.List;
 
 /**
@@ -19,7 +21,7 @@ public interface RegisterCenter {
 
     List<String> fetchAll(String serviceName);
 
-    // void subscribe();
+     void subscribe(String service, ChangedListener listener);
 
     class StaticRegisterCenter implements RegisterCenter {
 
@@ -52,6 +54,11 @@ public interface RegisterCenter {
         @Override
         public List<String> fetchAll(String serviceName) {
             return providers;
+        }
+
+        @Override
+        public void subscribe(String service, ChangedListener listener) {
+
         }
     }
 
