@@ -4,8 +4,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import java.lang.reflect.Array;
-import java.util.HashMap;
-import java.util.List;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.*;
 
 public class TypeUtils {
 
@@ -63,6 +65,60 @@ public class TypeUtils {
             return Boolean.valueOf(origin.toString());
         }
         return null;
+    }
+
+    public static Object castMethodResult(Method method, Object data) {
+        Class<?> type = method.getReturnType();
+        if (data instanceof JSONObject jsonObject) {
+            if (Map.class.isAssignableFrom(type)) {
+                Map resultMap = new HashMap();
+                Type genericReturnType = method.getGenericReturnType();
+                if (genericReturnType instanceof ParameterizedType parameterizedType) {
+                    Class<?> keyType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+                    Class<?> valueType = (Class<?>) parameterizedType.getActualTypeArguments()[1];
+                    jsonObject.entrySet().stream().forEach(obj -> {
+                        Object key = TypeUtils.cast(obj.getKey(), keyType);
+                        Object value = TypeUtils.cast(obj.getKey(), valueType);
+                        resultMap.put(key, value);
+                    });
+                }
+                return resultMap;
+            } else {
+                return jsonObject.toJavaObject(type);
+            }
+        } else if (data instanceof JSONArray jsonArray) {
+            Object[] arr = jsonArray.toArray();
+            if (type.isArray()) {
+                Class<?> componentType = type.getComponentType();
+                Object resArray = Array.newInstance(componentType, arr.length);
+                for (int i = 0; i < arr.length; i++) {
+                    if (componentType.isPrimitive() || componentType.getPackageName().startsWith("java")) {
+                        Array.set(resArray, i, arr[i]);
+                    } else {
+                        Object castObject = TypeUtils.cast(arr[i], componentType);
+                        Array.set(resArray, i, castObject);
+                    }
+                }
+                return resArray;
+            } else if (List.class.isAssignableFrom(type)) {
+                List<Object> resList = new ArrayList<>(arr.length);
+                // 范型？
+                Type genericReturnType = method.getGenericReturnType();
+                if (genericReturnType instanceof ParameterizedType parameterizedType) {
+                    Class<?> actualType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+                    for (Object obj : arr) {
+                        resList.add(TypeUtils.cast(obj, actualType));
+                    }
+                } else {
+                    resList.addAll(Arrays.asList(arr));
+                }
+                return resList;
+            } else {
+                return null;
+            }
+        } else {
+            return TypeUtils.cast(data, type);
+        }
     }
 
 }

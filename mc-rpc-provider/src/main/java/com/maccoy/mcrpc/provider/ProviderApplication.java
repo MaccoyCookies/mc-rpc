@@ -4,6 +4,7 @@ import com.maccoy.mcrpc.core.api.RpcRequest;
 import com.maccoy.mcrpc.core.api.RpcResponse;
 import com.maccoy.mcrpc.core.provider.ProviderBootstrap;
 import com.maccoy.mcrpc.core.provider.ProviderConfig;
+import com.maccoy.mcrpc.core.provider.ProviderInvoker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -26,11 +27,11 @@ public class ProviderApplication {
     // 使用HTTP + JSON 来实现序列化和通信
 
     @Autowired
-    private ProviderBootstrap providerBootstrap;
+    private ProviderInvoker providerInvoker;
 
     @RequestMapping("/")
-    public RpcResponse invoke(@RequestBody RpcRequest request) {
-        return providerBootstrap.invoke(request);
+    public RpcResponse<Object> invoke(@RequestBody RpcRequest request) {
+        return providerInvoker.invoke(request);
     }
 
     @Bean
@@ -40,14 +41,14 @@ public class ProviderApplication {
 //            rpcRequest.setService("com.maccoy.mcrpc.demo.api.IUserService");
 //            rpcRequest.setMethodSign("selectUserById@1_java.lang.Integer");
 //            rpcRequest.setArgs(new Object[]{100});
-//            RpcResponse rpcResponse = providerBootstrap.invoke(rpcRequest);
+//            RpcResponse rpcResponse = providerInvoker.invoke(rpcRequest);
 //            System.out.println(rpcResponse);
 //
 //            RpcRequest rpcRequest2 = new RpcRequest();
 //            rpcRequest2.setService("com.maccoy.mcrpc.demo.api.IUserService");
 //            rpcRequest2.setMethodSign("selectUserById@2_java.lang.Integer_java.lang.String");
 //            rpcRequest2.setArgs(new Object[]{100, "maccoy"});
-//            RpcResponse rpcResponse2 = providerBootstrap.invoke(rpcRequest2);
+//            RpcResponse rpcResponse2 = providerInvoker.invoke(rpcRequest2);
 //            System.out.println(rpcResponse2);
         };
     }

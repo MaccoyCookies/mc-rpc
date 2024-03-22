@@ -15,6 +15,7 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
@@ -56,11 +57,10 @@ public class McInvocationHandler implements InvocationHandler {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method method, Object[] args) {
         if (MethodUtils.checkLocalMethod(method.getName())) {
             return null;
         }
-
         RpcRequest rpcRequest = new RpcRequest();
         rpcRequest.setService(service.getCanonicalName());
         rpcRequest.setMethodSign(MethodUtils.methodSign(method));
@@ -68,65 +68,15 @@ public class McInvocationHandler implements InvocationHandler {
 
         List<String> urls = rpcContext.getRouter().router(this.providers);
         String url = (String) rpcContext.getLoadBalancer().choose(urls);
-        RpcResponse rpcResponse = post(rpcRequest, url);
-
-        Class<?> type = method.getReturnType();
+        RpcResponse<Object> rpcResponse = post(rpcRequest, url);
         if (rpcResponse.isStatus()) {
-            if (rpcResponse.getData() instanceof JSONObject jsonObject) {
-                if (Map.class.isAssignableFrom(type)) {
-                    Map resultMap = new HashMap();
-                    Type genericReturnType = method.getGenericReturnType();
-                    if (genericReturnType instanceof ParameterizedType parameterizedType) {
-                        Class<?> keyType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
-                        Class<?> valueType = (Class<?>) parameterizedType.getActualTypeArguments()[1];
-                        jsonObject.entrySet().stream().forEach(obj -> {
-                            Object key = TypeUtils.cast(obj.getKey(), keyType);
-                            Object value = TypeUtils.cast(obj.getKey(), valueType);
-                            resultMap.put(key, value);
-                        });
-                    }
-                    return resultMap;
-                } else {
-                    return jsonObject.toJavaObject(type);
-                }
-            } else if (rpcResponse.getData() instanceof JSONArray jsonArray) {
-                Object[] arr = jsonArray.toArray();
-                if (type.isArray()) {
-                    Class<?> componentType = type.getComponentType();
-                    Object resArray = Array.newInstance(componentType, arr.length);
-                    for (int i = 0; i < arr.length; i++) {
-                        if (componentType.isPrimitive() || componentType.getPackageName().startsWith("java")) {
-                            Array.set(resArray, i, arr[i]);
-                        } else {
-                            Object castObject = TypeUtils.cast(arr[i], componentType);
-                            Array.set(resArray, i, castObject);
-                        }
-                    }
-                    return resArray;
-                } else if (List.class.isAssignableFrom(type)) {
-                    List<Object> resList = new ArrayList<>(arr.length);
-                    // 范型？
-                    Type genericReturnType = method.getGenericReturnType();
-                    if (genericReturnType instanceof ParameterizedType parameterizedType) {
-                        Class<?> actualType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
-                        for (Object obj : arr) {
-                            resList.add(TypeUtils.cast(obj, actualType));
-                        }
-                    } else {
-                        resList.addAll(Arrays.asList(arr));
-                    }
-                    return resList;
-                } else {
-                    return null;
-                }
-            } else {
-                return TypeUtils.cast(rpcResponse.getData(), type);
-            }
+            Object data = rpcResponse.getData();
+            return TypeUtils.castMethodResult(method, data);
         }
         throw new RuntimeException(rpcResponse.getException());
     }
 
-    private RpcResponse post(RpcRequest rpcRequest, String url) {
+    private RpcResponse<Object> post(RpcRequest rpcRequest, String url) {
         String requestJson = JSON.toJSONString(rpcRequest);
         Request request = new Request.Builder()
                 .url(url)

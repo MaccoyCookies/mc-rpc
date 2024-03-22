@@ -100,35 +100,4 @@ public class ProviderBootstrap implements ApplicationContextAware {
         skeleton.add(anInterface.getCanonicalName(), providerMeta);
     }
 
-    public RpcResponse invoke(RpcRequest request) {
-        RpcResponse rpcResponse = new RpcResponse();
-        try {
-            List<ProviderMeta> providerMetas = skeleton.get(request.getService());
-            ProviderMeta providerMeta = findProviderMeta(providerMetas, request.getMethodSign());
-            Object[] args = processArgs(request.getArgs(), providerMeta.getMethod().getParameterTypes());
-            Object res = providerMeta.getMethod().invoke(providerMeta.getServiceImpl(), args);
-            rpcResponse.setStatus(true);
-            rpcResponse.setData(res);
-            return rpcResponse;
-        } catch (InvocationTargetException exception) {
-            rpcResponse.setException(new RuntimeException(exception.getTargetException().getMessage()));
-        } catch (Exception exception) {
-            rpcResponse.setException(new RuntimeException(exception.getMessage()));
-        }
-        return rpcResponse;
-    }
-
-    private Object[] processArgs(Object[] args, Class<?>[] parameterTypes) {
-        if (args == null || args.length == 0) return args;
-        Object[] actualArray = new Object[args.length];
-        for (int i = 0; i < args.length; i++) {
-            actualArray[i] = TypeUtils.cast(args[i], parameterTypes[i]);
-        }
-        return actualArray;
-    }
-
-    private ProviderMeta findProviderMeta(List<ProviderMeta> providerMetas, String methodSign) {
-        return providerMetas.stream().filter(meta -> meta.getMethodSign().equals(methodSign)).findFirst().orElse(null);
-    }
-
 }

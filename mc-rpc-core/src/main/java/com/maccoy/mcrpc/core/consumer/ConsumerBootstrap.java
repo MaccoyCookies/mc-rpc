@@ -7,6 +7,7 @@ import com.maccoy.mcrpc.core.api.Router;
 import com.maccoy.mcrpc.core.api.RpcContext;
 import com.maccoy.mcrpc.core.registry.ChangedListener;
 import com.maccoy.mcrpc.core.registry.Event;
+import com.maccoy.mcrpc.core.util.MethodUtils;
 import lombok.Data;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -57,7 +58,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                     || packageName.startsWith("org.apache")) {
                 continue;
             }
-            List<Field> fields = findAnnotatedField(bean.getClass());
+            List<Field> fields = MethodUtils.findAnnotatedField(bean.getClass(), McConsumer.class);
             for (Field field : fields) {
                 try {
                     Class<?> service = field.getType();
@@ -91,20 +92,6 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private Object createConsumer(Class<?> service, RpcContext rpcContext, List<String> providers) {
         return Proxy.newProxyInstance(service.getClassLoader(), new Class[]{service}, new McInvocationHandler(service, rpcContext, providers));
-    }
-
-    private List<Field> findAnnotatedField(Class<?> aClass) {
-        List<Field> res = new ArrayList<>();
-        while (aClass.getSuperclass() != null) {
-            Field[] fields = aClass.getDeclaredFields();
-            for (Field field : fields) {
-                if (field.isAnnotationPresent(McConsumer.class)) {
-                    res.add(field);
-                }
-            }
-            aClass = aClass.getSuperclass();
-        }
-        return res;
     }
 
 }

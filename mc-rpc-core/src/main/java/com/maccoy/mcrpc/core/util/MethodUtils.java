@@ -1,7 +1,13 @@
 package com.maccoy.mcrpc.core.util;
 
+import com.maccoy.mcrpc.core.annotation.McConsumer;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class MethodUtils {
 
@@ -30,10 +36,17 @@ public class MethodUtils {
         return stringBuilder.toString();
     }
 
-//    public static void main(String[] args) {
-//        Arrays.stream(MethodUtils.class.getMethods()).forEach(
-//                method -> System.out.println(methodSign(method))
-//        );
-//    }
-
+    public static List<Field> findAnnotatedField(Class<?> aClass, Class<? extends Annotation> annotationClass) {
+        List<Field> res = new ArrayList<>();
+        while (aClass.getSuperclass() != null) {
+            Field[] fields = aClass.getDeclaredFields();
+            for (Field field : fields) {
+                if (field.isAnnotationPresent(annotationClass)) {
+                    res.add(field);
+                }
+            }
+            aClass = aClass.getSuperclass();
+        }
+        return res;
+    }
 }
