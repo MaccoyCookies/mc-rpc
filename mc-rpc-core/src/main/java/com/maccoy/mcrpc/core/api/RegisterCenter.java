@@ -1,5 +1,6 @@
 package com.maccoy.mcrpc.core.api;
 
+import com.maccoy.mcrpc.core.meta.InstanceMeta;
 import com.maccoy.mcrpc.core.registry.ChangedListener;
 
 import java.util.List;
@@ -15,19 +16,19 @@ public interface RegisterCenter {
 
     void stop();
 
-    void register(String service, String instance);
+    void register(String service, InstanceMeta instance);
 
-    void unregister(String service, String instance);
+    void unregister(String service, InstanceMeta instance);
 
-    List<String> fetchAll(String serviceName);
+    List<InstanceMeta> fetchAll(String serviceName);
 
      void subscribe(String service, ChangedListener listener);
 
     class StaticRegisterCenter implements RegisterCenter {
 
-        List<String> providers;
+        List<InstanceMeta> providers;
 
-        public StaticRegisterCenter(List<String> providers) {
+        public StaticRegisterCenter(List<InstanceMeta> providers) {
             this.providers = providers;
         }
 
@@ -42,17 +43,17 @@ public interface RegisterCenter {
         }
 
         @Override
-        public void register(String service, String instance) {
+        public void register(String service, InstanceMeta instance) {
 
         }
 
         @Override
-        public void unregister(String service, String instance) {
+        public void unregister(String service, InstanceMeta instance) {
 
         }
 
         @Override
-        public List<String> fetchAll(String serviceName) {
+        public List<InstanceMeta> fetchAll(String serviceName) {
             return providers;
         }
 

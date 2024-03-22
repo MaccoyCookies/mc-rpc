@@ -1,6 +1,7 @@
 package com.maccoy.mcrpc.core.registry;
 
 import com.maccoy.mcrpc.core.api.RegisterCenter;
+import com.maccoy.mcrpc.core.meta.InstanceMeta;
 import lombok.SneakyThrows;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
@@ -8,8 +9,10 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Maccoy
@@ -35,13 +38,13 @@ public class ZkRegistryCenter implements RegisterCenter {
     }
 
     @Override
-    public void register(String service, String instance) {
+    public void register(String service, InstanceMeta instance) {
         String servicePath = "/" + service;
         try {
             if (curatorFramework.checkExists().forPath(servicePath) == null) {
                 curatorFramework.create().withMode(CreateMode.PERSISTENT).forPath(servicePath, "service".getBytes());
             }
-            String instancePath = servicePath + "/" + instance;
+            String instancePath = servicePath + "/" + instance.toPath();
             curatorFramework.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, "provider".getBytes());
             System.out.println("zk register ... " + servicePath);
         } catch (Exception exception) {
@@ -50,14 +53,14 @@ public class ZkRegistryCenter implements RegisterCenter {
     }
 
     @Override
-    public void unregister(String service, String instance) {
+    public void unregister(String service, InstanceMeta instance) {
         String servicePath = "/" + service;
         try {
             // 判断服务是否存在
             if (curatorFramework.checkExists().forPath(servicePath) == null) {
                 return;
             }
-            String instancePath = servicePath + "/" + instance;
+            String instancePath = servicePath + "/" + instance.toPath();
             curatorFramework.delete().quietly().forPath(instancePath);
             System.out.println("zk unregister ..." + servicePath);
         } catch (Exception exception) {
@@ -66,16 +69,23 @@ public class ZkRegistryCenter implements RegisterCenter {
     }
 
     @Override
-    public List<String> fetchAll(String serviceName) {
+    public List<InstanceMeta> fetchAll(String serviceName) {
         String servicePath = "/" + serviceName;
         try {
             List<String> nodes = curatorFramework.getChildren().forPath(servicePath);
             System.out.println("fetchAll from zk: " + servicePath);
             nodes.forEach(System.out::println);
-            return nodes;
+            return mapInstances(nodes);
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }
+    }
+
+    private static List<InstanceMeta> mapInstances(List<String> nodes) {
+        return nodes.stream().map(node -> {
+            String[] split = node.split("_");
+            return InstanceMeta.http(split[0], Integer.valueOf(split[1]));
+        }).collect(Collectors.toList());
     }
 
     @SneakyThrows
@@ -86,7 +96,7 @@ public class ZkRegistryCenter implements RegisterCenter {
         treeCache.getListenable().addListener((curator, event) -> {
             // 有任何节点变动
             System.out.println("zk subscribe event: " + event);
-            List<String> nodes = fetchAll(service);
+            List<InstanceMeta> nodes = fetchAll(service);
             listener.fire(new Event(nodes));
         });
         treeCache.start();

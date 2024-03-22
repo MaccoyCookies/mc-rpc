@@ -1,5 +1,6 @@
 package com.maccoy.mcrpc.core.api;
 
+import com.maccoy.mcrpc.core.meta.InstanceMeta;
 import lombok.Data;
 
 import java.util.List;

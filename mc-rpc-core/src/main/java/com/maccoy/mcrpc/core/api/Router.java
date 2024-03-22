@@ -1,5 +1,7 @@
 package com.maccoy.mcrpc.core.api;
 
+import com.maccoy.mcrpc.core.meta.InstanceMeta;
+
 import java.util.List;
 
 /**
@@ -7,9 +9,9 @@ import java.util.List;
  * @date 2024/3/17 18:06
  * Description
  */
-public interface Router<T> {
+public interface Router {
 
-    List<T> router(List<T> providers);
+    List<InstanceMeta> router(List<InstanceMeta> providers);
 
     Router Default = providers -> providers;
 

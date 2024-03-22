@@ -2,11 +2,9 @@ package com.maccoy.mcrpc.core.provider;
 
 import com.maccoy.mcrpc.core.annotation.McProvider;
 import com.maccoy.mcrpc.core.api.RegisterCenter;
-import com.maccoy.mcrpc.core.api.RpcRequest;
-import com.maccoy.mcrpc.core.api.RpcResponse;
+import com.maccoy.mcrpc.core.meta.InstanceMeta;
 import com.maccoy.mcrpc.core.meta.ProviderMeta;
 import com.maccoy.mcrpc.core.util.MethodUtils;
-import com.maccoy.mcrpc.core.util.TypeUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.Data;
@@ -18,13 +16,9 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,12 +34,12 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private final MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
 
-    private String instance;
+    private InstanceMeta instance;
 
     private RegisterCenter registerCenter;
 
     @Value("${server.port}")
-    private String port;
+    private Integer port;
 
     @PostConstruct
     public void init() {
@@ -59,7 +53,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
     @SneakyThrows
     public void start() {
         String ip = InetAddress.getLocalHost().getHostAddress();
-        this.instance = ip + "_" + port;
+        this.instance = InstanceMeta.http(ip, port);
         registerCenter.start();
         skeleton.keySet().forEach(this::registerService);
     }

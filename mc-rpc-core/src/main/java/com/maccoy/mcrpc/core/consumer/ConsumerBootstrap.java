@@ -5,6 +5,7 @@ import com.maccoy.mcrpc.core.api.LoadBalancer;
 import com.maccoy.mcrpc.core.api.RegisterCenter;
 import com.maccoy.mcrpc.core.api.Router;
 import com.maccoy.mcrpc.core.api.RpcContext;
+import com.maccoy.mcrpc.core.meta.InstanceMeta;
 import com.maccoy.mcrpc.core.registry.ChangedListener;
 import com.maccoy.mcrpc.core.registry.Event;
 import com.maccoy.mcrpc.core.util.MethodUtils;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 /**
  * @author Maccoy
  * @date 2024/3/10 19:47
- * Description
+ * Description 消费者启动类
  */
 @Data
 public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAware {
@@ -66,6 +67,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                     if (stub.containsKey(canonicalName)) continue;
                     // Object consumer = createConsumer(service, rpcContext, providers);
                     Object consumer = createConsumerFromRegister(service, rpcContext, registerCenter);
+                    stub.put(canonicalName, consumer);
                     field.setAccessible(true);
                     field.set(bean, consumer);
                 } catch (Exception exception) {
@@ -77,20 +79,17 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private Object createConsumerFromRegister(Class<?> service, RpcContext rpcContext, RegisterCenter registerCenter) {
         String serviceName = service.getCanonicalName();
-        List<String> providers = transferNodesToProvider(registerCenter.fetchAll(serviceName));
+        List<InstanceMeta> providers = registerCenter.fetchAll(serviceName);
         System.out.println("===> map to providers: " + providers);
         registerCenter.subscribe(serviceName, event -> {
             providers.clear();
-            providers.addAll(transferNodesToProvider(event.getData()));
+            providers.addAll(event.getData());
         });
         return createConsumer(service, rpcContext, providers);
     }
 
-    private List<String> transferNodesToProvider(List<String> nodes) {
-        return nodes.stream().map(node -> "http://" + node.replace("_", ":")).collect(Collectors.toList());
-    }
 
-    private Object createConsumer(Class<?> service, RpcContext rpcContext, List<String> providers) {
+    private Object createConsumer(Class<?> service, RpcContext rpcContext, List<InstanceMeta> providers) {
         return Proxy.newProxyInstance(service.getClassLoader(), new Class[]{service}, new McInvocationHandler(service, rpcContext, providers));
     }
 
