@@ -4,6 +4,7 @@ import com.maccoy.mcrpc.core.annotation.McProvider;
 import com.maccoy.mcrpc.core.api.RegisterCenter;
 import com.maccoy.mcrpc.core.meta.InstanceMeta;
 import com.maccoy.mcrpc.core.meta.ProviderMeta;
+import com.maccoy.mcrpc.core.meta.ServiceMeta;
 import com.maccoy.mcrpc.core.util.MethodUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -41,6 +42,16 @@ public class ProviderBootstrap implements ApplicationContextAware {
     @Value("${server.port}")
     private Integer port;
 
+    @Value("${app.id}")
+    private String app;
+
+    @Value("${app.namespace}")
+    private String namespace;
+
+    @Value("${app.env}")
+    private String env;
+
+
     @PostConstruct
     public void init() {
         Map<String, Object> providers = applicationContext.getBeansWithAnnotation(McProvider.class);
@@ -65,14 +76,17 @@ public class ProviderBootstrap implements ApplicationContextAware {
         registerCenter.stop();
     }
 
-    private void registerService(String service) {
+    private void registerService(String serviceName) {
         RegisterCenter registerCenter = applicationContext.getBean(RegisterCenter.class);
-        registerCenter.register(service, instance);
+
+        ServiceMeta serviceMeta = new ServiceMeta(app, namespace, env, serviceName);
+        registerCenter.register(serviceMeta, instance);
     }
 
-    private void unregisterService(String service) {
+    private void unregisterService(String serviceName) {
         RegisterCenter registerCenter = applicationContext.getBean(RegisterCenter.class);
-        registerCenter.unregister(service, instance);
+        ServiceMeta serviceMeta = new ServiceMeta(app, namespace, env, serviceName);
+        registerCenter.unregister(serviceMeta, instance);
     }
 
     private void genInterface(Object value) {

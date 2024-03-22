@@ -2,6 +2,7 @@ package com.maccoy.mcrpc.core.registry;
 
 import com.maccoy.mcrpc.core.api.RegisterCenter;
 import com.maccoy.mcrpc.core.meta.InstanceMeta;
+import com.maccoy.mcrpc.core.meta.ServiceMeta;
 import lombok.SneakyThrows;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
@@ -38,8 +39,8 @@ public class ZkRegistryCenter implements RegisterCenter {
     }
 
     @Override
-    public void register(String service, InstanceMeta instance) {
-        String servicePath = "/" + service;
+    public void register(ServiceMeta serviceMeta, InstanceMeta instance) {
+        String servicePath = "/" + serviceMeta.toPath();
         try {
             if (curatorFramework.checkExists().forPath(servicePath) == null) {
                 curatorFramework.create().withMode(CreateMode.PERSISTENT).forPath(servicePath, "service".getBytes());
@@ -53,8 +54,8 @@ public class ZkRegistryCenter implements RegisterCenter {
     }
 
     @Override
-    public void unregister(String service, InstanceMeta instance) {
-        String servicePath = "/" + service;
+    public void unregister(ServiceMeta serviceMeta, InstanceMeta instance) {
+        String servicePath = "/" + serviceMeta.toPath();
         try {
             // 判断服务是否存在
             if (curatorFramework.checkExists().forPath(servicePath) == null) {
@@ -69,8 +70,8 @@ public class ZkRegistryCenter implements RegisterCenter {
     }
 
     @Override
-    public List<InstanceMeta> fetchAll(String serviceName) {
-        String servicePath = "/" + serviceName;
+    public List<InstanceMeta> fetchAll(ServiceMeta serviceMeta) {
+        String servicePath = "/" + serviceMeta.toPath();
         try {
             List<String> nodes = curatorFramework.getChildren().forPath(servicePath);
             System.out.println("fetchAll from zk: " + servicePath);
@@ -90,13 +91,13 @@ public class ZkRegistryCenter implements RegisterCenter {
 
     @SneakyThrows
     @Override
-    public void subscribe(String service, ChangedListener listener) {
-        final TreeCache treeCache = TreeCache.newBuilder(curatorFramework, "/" + service).setCacheData(true).setMaxDepth(2).build();
+    public void subscribe(ServiceMeta serviceMeta, ChangedListener listener) {
+        final TreeCache treeCache = TreeCache.newBuilder(curatorFramework, "/" + serviceMeta.toPath()).setCacheData(true).setMaxDepth(2).build();
 
         treeCache.getListenable().addListener((curator, event) -> {
             // 有任何节点变动
             System.out.println("zk subscribe event: " + event);
-            List<InstanceMeta> nodes = fetchAll(service);
+            List<InstanceMeta> nodes = fetchAll(serviceMeta);
             listener.fire(new Event(nodes));
         });
         treeCache.start();

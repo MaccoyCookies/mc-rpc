@@ -5,13 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
  * @author Maccoy
  * @date 2024/3/22 22:28
- * Description
+ * Description 描述服务实例元数据
  */
 @Data
 @Builder
@@ -49,8 +48,7 @@ public class InstanceMeta {
         return new InstanceMeta("http", host, port, "");
     }
 
-    @Override
-    public String toString() {
+    public String toUrl() {
         return String.format("%s://%s:%d/%s", schema, host, port, context);
     }
 }

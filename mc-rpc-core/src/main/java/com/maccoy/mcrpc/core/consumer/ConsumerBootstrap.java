@@ -6,10 +6,12 @@ import com.maccoy.mcrpc.core.api.RegisterCenter;
 import com.maccoy.mcrpc.core.api.Router;
 import com.maccoy.mcrpc.core.api.RpcContext;
 import com.maccoy.mcrpc.core.meta.InstanceMeta;
+import com.maccoy.mcrpc.core.meta.ServiceMeta;
 import com.maccoy.mcrpc.core.registry.ChangedListener;
 import com.maccoy.mcrpc.core.registry.Event;
 import com.maccoy.mcrpc.core.util.MethodUtils;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
@@ -36,6 +38,15 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
     private Environment environment;
 
     private final Map<String, Object> stub = new HashMap<>();
+
+    @Value("${app.id}")
+    private String app;
+
+    @Value("${app.namespace}")
+    private String namespace;
+
+    @Value("${app.env}")
+    private String env;
 
     public void start() {
 
@@ -79,9 +90,10 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private Object createConsumerFromRegister(Class<?> service, RpcContext rpcContext, RegisterCenter registerCenter) {
         String serviceName = service.getCanonicalName();
-        List<InstanceMeta> providers = registerCenter.fetchAll(serviceName);
+        ServiceMeta serviceMeta = new ServiceMeta(app, namespace, env, serviceName);
+        List<InstanceMeta> providers = registerCenter.fetchAll(serviceMeta);
         System.out.println("===> map to providers: " + providers);
-        registerCenter.subscribe(serviceName, event -> {
+        registerCenter.subscribe(serviceMeta, event -> {
             providers.clear();
             providers.addAll(event.getData());
         });

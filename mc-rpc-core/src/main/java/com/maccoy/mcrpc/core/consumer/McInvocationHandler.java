@@ -45,7 +45,7 @@ public class McInvocationHandler implements InvocationHandler {
 
         List<InstanceMeta> instanceMetas = rpcContext.getRouter().router(this.providers);
         InstanceMeta instanceMeta = rpcContext.getLoadBalancer().choose(instanceMetas);
-        String url = instanceMeta.toString();
+        String url = instanceMeta.toUrl();
         RpcResponse<?> rpcResponse = httpInvoker.post(rpcRequest, url);
         if (rpcResponse.isStatus()) {
             Object data = rpcResponse.getData();
