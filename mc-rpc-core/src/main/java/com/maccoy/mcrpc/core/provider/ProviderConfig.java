@@ -28,7 +28,7 @@ public class ProviderConfig {
         };
     }
 
-    @Bean(initMethod = "start", destroyMethod = "stop")
+    @Bean
     RegisterCenter registerCenter() {
         return new ZkRegistryCenter();
     }

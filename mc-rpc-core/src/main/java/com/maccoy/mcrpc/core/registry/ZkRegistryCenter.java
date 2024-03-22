@@ -59,7 +59,7 @@ public class ZkRegistryCenter implements RegisterCenter {
             }
             String instancePath = servicePath + "/" + instance;
             curatorFramework.delete().quietly().forPath(instancePath);
-            System.out.println("zk unregister ...");
+            System.out.println("zk unregister ..." + servicePath);
         } catch (Exception exception) {
             throw new RuntimeException(exception);
         }

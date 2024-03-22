@@ -42,6 +42,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private String instance;
 
+    private RegisterCenter registerCenter;
+
     @Value("${server.port}")
     private String port;
 
@@ -51,18 +53,22 @@ public class ProviderBootstrap implements ApplicationContextAware {
         for (Map.Entry<String, Object> entry : providers.entrySet()) {
             genInterface(entry.getValue());
         }
+        registerCenter = applicationContext.getBean(RegisterCenter.class);
     }
 
     @SneakyThrows
     public void start() {
         String ip = InetAddress.getLocalHost().getHostAddress();
         this.instance = ip + "_" + port;
+        registerCenter.start();
         skeleton.keySet().forEach(this::registerService);
     }
 
     @PreDestroy
     public void stop() {
+        System.out.println(" ===> unregister all service");
         skeleton.keySet().forEach(this::unregisterService);
+        registerCenter.stop();
     }
 
     private void registerService(String service) {
