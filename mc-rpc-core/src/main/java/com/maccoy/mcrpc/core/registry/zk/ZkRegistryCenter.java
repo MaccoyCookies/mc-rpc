@@ -1,8 +1,10 @@
-package com.maccoy.mcrpc.core.registry;
+package com.maccoy.mcrpc.core.registry.zk;
 
 import com.maccoy.mcrpc.core.api.RegisterCenter;
 import com.maccoy.mcrpc.core.meta.InstanceMeta;
 import com.maccoy.mcrpc.core.meta.ServiceMeta;
+import com.maccoy.mcrpc.core.registry.ChangedListener;
+import com.maccoy.mcrpc.core.registry.Event;
 import lombok.SneakyThrows;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
@@ -10,7 +12,7 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
-import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,13 +24,20 @@ import java.util.stream.Collectors;
  */
 public class ZkRegistryCenter implements RegisterCenter {
 
+    @Value("${mcrpc.zkServer}")
+    private String zkServer;
+
+    @Value("${mcrpc.zkRoot}")
+    private String zkRoot;
+
     private CuratorFramework curatorFramework = null;
 
     @Override
     public void start() {
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
-        curatorFramework = CuratorFrameworkFactory.builder().connectString("localhost:2181").namespace("mcrpc").retryPolicy(retryPolicy).build();
-        System.out.println("zk start ...");
+        curatorFramework = CuratorFrameworkFactory.builder()
+                .connectString(zkServer).namespace(zkRoot).retryPolicy(retryPolicy).build();
+        System.out.println("zk client start to server[" + zkServer +"]...");
         curatorFramework.start();
     }
 

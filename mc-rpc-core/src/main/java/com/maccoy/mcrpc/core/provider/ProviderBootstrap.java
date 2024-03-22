@@ -55,10 +55,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
     @PostConstruct
     public void init() {
         Map<String, Object> providers = applicationContext.getBeansWithAnnotation(McProvider.class);
-        for (Map.Entry<String, Object> entry : providers.entrySet()) {
-            genInterface(entry.getValue());
-        }
         registerCenter = applicationContext.getBean(RegisterCenter.class);
+        providers.entrySet().forEach(this::genInterface);
     }
 
     @SneakyThrows
@@ -89,21 +87,18 @@ public class ProviderBootstrap implements ApplicationContextAware {
         registerCenter.unregister(serviceMeta, instance);
     }
 
-    private void genInterface(Object value) {
-        Class<?>[] anInterface = value.getClass().getInterfaces();
-        Arrays.stream(anInterface).forEach(aClass -> {
-            for (Method method : aClass.getMethods()) {
+    private void genInterface(Object serviceImpl) {
+        Class<?>[] anInterface = serviceImpl.getClass().getInterfaces();
+        Arrays.stream(anInterface).forEach(service -> {
+            for (Method method : service.getMethods()) {
                 if (MethodUtils.checkLocalMethod(method)) continue;
-                createProvider(aClass, value, method);
+                createProvider(service, serviceImpl, method);
             }
         });
     }
 
-    private void createProvider(Class<?> anInterface, Object value, Method method) {
-        ProviderMeta providerMeta = new ProviderMeta();
-        providerMeta.setMethod(method);
-        providerMeta.setServiceImpl(value);
-        providerMeta.setMethodSign(MethodUtils.methodSign(method));
+    private void createProvider(Class<?> anInterface, Object serviceImpl, Method method) {
+        ProviderMeta providerMeta = new ProviderMeta(method, MethodUtils.methodSign(method), serviceImpl);
         System.out.println("create a provider: " + providerMeta);
         skeleton.add(anInterface.getCanonicalName(), providerMeta);
     }

@@ -38,11 +38,7 @@ public class McInvocationHandler implements InvocationHandler {
         if (MethodUtils.checkLocalMethod(method.getName())) {
             return null;
         }
-        RpcRequest rpcRequest = new RpcRequest();
-        rpcRequest.setService(service.getCanonicalName());
-        rpcRequest.setMethodSign(MethodUtils.methodSign(method));
-        rpcRequest.setArgs(args);
-
+        RpcRequest rpcRequest = new RpcRequest(service.getCanonicalName(), MethodUtils.methodSign(method), args);
         List<InstanceMeta> instanceMetas = rpcContext.getRouter().router(this.providers);
         InstanceMeta instanceMeta = rpcContext.getLoadBalancer().choose(instanceMetas);
         String url = instanceMeta.toUrl();

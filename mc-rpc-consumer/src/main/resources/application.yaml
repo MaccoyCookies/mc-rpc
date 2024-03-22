@@ -3,6 +3,8 @@ server:
 
 mcrpc:
   providers: http://localhost:7001
+  zkServer: localhost:2181
+  zkRoot: mcrpc
 
 
 app:

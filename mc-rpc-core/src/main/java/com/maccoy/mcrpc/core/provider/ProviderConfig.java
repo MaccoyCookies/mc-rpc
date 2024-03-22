@@ -1,7 +1,7 @@
 package com.maccoy.mcrpc.core.provider;
 
 import com.maccoy.mcrpc.core.api.RegisterCenter;
-import com.maccoy.mcrpc.core.registry.ZkRegistryCenter;
+import com.maccoy.mcrpc.core.registry.zk.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
