@@ -7,18 +7,18 @@ package com.maccoy.mcrpc.core.api;
  */
 public interface Filter {
 
-    RpcResponse prefixFilter(RpcRequest rpcRequest);
+    Object prefixFilter(RpcRequest rpcRequest);
 
-    RpcResponse postFilter(RpcRequest request, RpcResponse rpcResponse);
+    Object postFilter(RpcRequest request, RpcResponse rpcResponse, Object res);
 
     Filter Default = new Filter() {
         @Override
-        public RpcResponse prefixFilter(RpcRequest rpcRequest) {
+        public Object prefixFilter(RpcRequest rpcRequest) {
             return null;
         }
 
         @Override
-        public RpcResponse postFilter(RpcRequest request, RpcResponse rpcResponse) {
+        public Object postFilter(RpcRequest request, RpcResponse rpcResponse, Object res) {
             return null;
         }
     };

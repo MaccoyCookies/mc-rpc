@@ -19,16 +19,16 @@ public class CacheFilter implements Filter {
      * 2. TODO CacheFilter 需要放在最后一个过滤器 否则有可能cache拿到的不是最终值
      */
 
-    static Map<String, RpcResponse> cache  = new ConcurrentHashMap<>();
+    static Map<String, Object> cache  = new ConcurrentHashMap<>();
 
     @Override
-    public RpcResponse prefixFilter(RpcRequest rpcRequest) {
+    public Object prefixFilter(RpcRequest rpcRequest) {
         return cache.get(rpcRequest.toString());
     }
 
     @Override
-    public RpcResponse postFilter(RpcRequest request, RpcResponse rpcResponse) {
-        cache.putIfAbsent(request.toString(), rpcResponse);
+    public Object postFilter(RpcRequest request, RpcResponse rpcResponse, Object res) {
+        cache.putIfAbsent(request.toString(), res);
         return rpcResponse;
     }
 }

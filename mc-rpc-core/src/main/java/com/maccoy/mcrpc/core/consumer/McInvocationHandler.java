@@ -46,10 +46,10 @@ public class McInvocationHandler implements InvocationHandler {
 
         // 请求过滤器
         for (Filter filter : this.rpcContext.getFilters()) {
-            RpcResponse prefixResponse = filter.prefixFilter(rpcRequest);
-            if (prefixResponse != null) {
-                log.info(filter.getClass().getName() + " ==> prefilter: " + prefixResponse);
-                return caseReturnResult(method, prefixResponse);
+            Object res = filter.prefixFilter(rpcRequest);
+            if (res != null) {
+                log.info(filter.getClass().getName() + " ==> prefilter: " + res);
+                return res;
             }
         }
 
@@ -58,12 +58,16 @@ public class McInvocationHandler implements InvocationHandler {
         String url = instanceMeta.toUrl();
         RpcResponse<?> rpcResponse = httpInvoker.post(rpcRequest, url);
 
+        Object res = caseReturnResult(method, rpcResponse);
         // 响应过滤器
         for (Filter filter : this.rpcContext.getFilters()) {
             // 加工响应对象
-            rpcResponse = filter.postFilter(rpcRequest, rpcResponse);
+            Object postResponse = filter.postFilter(rpcRequest, rpcResponse, res);
+            if (postResponse != null) {
+                return postResponse;
+            }
         }
-        return caseReturnResult(method, rpcResponse);
+        return res;
     }
 
     private static Object caseReturnResult(Method method, RpcResponse<?> rpcResponse) {
