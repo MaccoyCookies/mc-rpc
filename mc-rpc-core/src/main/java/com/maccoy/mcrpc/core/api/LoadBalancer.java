@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author Maccoy
  * @date 2024/3/17 18:06
- * Description
+ * Description 负载均衡
  */
 public interface LoadBalancer {
 

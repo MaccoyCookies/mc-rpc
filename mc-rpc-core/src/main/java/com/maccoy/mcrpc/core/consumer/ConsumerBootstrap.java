@@ -1,6 +1,7 @@
 package com.maccoy.mcrpc.core.consumer;
 
 import com.maccoy.mcrpc.core.annotation.McConsumer;
+import com.maccoy.mcrpc.core.api.Filter;
 import com.maccoy.mcrpc.core.api.LoadBalancer;
 import com.maccoy.mcrpc.core.api.RegisterCenter;
 import com.maccoy.mcrpc.core.api.Router;
@@ -51,13 +52,15 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
     private String env;
 
     public void start() {
-
         LoadBalancer loadBalancer = applicationContext.getBean(LoadBalancer.class);
         Router router = applicationContext.getBean(Router.class);
         RegisterCenter registerCenter = applicationContext.getBean(RegisterCenter.class);
+        List<Filter> filters = applicationContext.getBeansOfType(Filter.class).values().stream().toList();
         RpcContext rpcContext = new RpcContext();
         rpcContext.setRouter(router);
         rpcContext.setLoadBalancer(loadBalancer);
+        rpcContext.setFilters(filters);
+
         String[] names = applicationContext.getBeanDefinitionNames();
         for (String name : names) {
             Object bean = applicationContext.getBean(name);

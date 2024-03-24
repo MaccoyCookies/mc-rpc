@@ -7,11 +7,11 @@ import java.util.List;
 /**
  * @author Maccoy
  * @date 2024/3/17 18:06
- * Description
+ * Description 路由器
  */
-public interface Router {
+public interface Router<T> {
 
-    List<InstanceMeta> router(List<InstanceMeta> providers);
+    List<T> router(List<T> providers);
 
     Router Default = providers -> providers;
 

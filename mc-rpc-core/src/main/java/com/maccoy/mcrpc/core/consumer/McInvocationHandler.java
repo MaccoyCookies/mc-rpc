@@ -1,5 +1,6 @@
 package com.maccoy.mcrpc.core.consumer;
 
+import com.maccoy.mcrpc.core.api.Filter;
 import com.maccoy.mcrpc.core.api.RpcContext;
 import com.maccoy.mcrpc.core.api.RpcRequest;
 import com.maccoy.mcrpc.core.api.RpcResponse;
@@ -7,6 +8,8 @@ import com.maccoy.mcrpc.core.consumer.http.OkHttpInvoker;
 import com.maccoy.mcrpc.core.meta.InstanceMeta;
 import com.maccoy.mcrpc.core.util.MethodUtils;
 import com.maccoy.mcrpc.core.util.TypeUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -17,6 +20,7 @@ import java.util.List;
  * @date 2024/3/10 20:02
  * Description 消费端动态代理处理类
  */
+@Slf4j
 public class McInvocationHandler implements InvocationHandler {
 
     Class<?> service;
@@ -39,10 +43,30 @@ public class McInvocationHandler implements InvocationHandler {
             return null;
         }
         RpcRequest rpcRequest = new RpcRequest(service.getCanonicalName(), MethodUtils.methodSign(method), args);
+
+        // 请求过滤器
+        for (Filter filter : this.rpcContext.getFilters()) {
+            RpcResponse prefixResponse = filter.prefixFilter(rpcRequest);
+            if (prefixResponse != null) {
+                log.info(filter.getClass().getName() + " ==> prefilter: " + prefixResponse);
+                return caseReturnResult(method, prefixResponse);
+            }
+        }
+
         List<InstanceMeta> instanceMetas = rpcContext.getRouter().router(this.providers);
         InstanceMeta instanceMeta = rpcContext.getLoadBalancer().choose(instanceMetas);
         String url = instanceMeta.toUrl();
         RpcResponse<?> rpcResponse = httpInvoker.post(rpcRequest, url);
+
+        // 响应过滤器
+        for (Filter filter : this.rpcContext.getFilters()) {
+            // 加工响应对象
+            rpcResponse = filter.postFilter(rpcRequest, rpcResponse);
+        }
+        return caseReturnResult(method, rpcResponse);
+    }
+
+    private static Object caseReturnResult(Method method, RpcResponse<?> rpcResponse) {
         if (rpcResponse.isStatus()) {
             Object data = rpcResponse.getData();
             return TypeUtils.castMethodResult(method, data);

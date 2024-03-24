@@ -1,14 +1,19 @@
 package com.maccoy.mcrpc.core.consumer;
 
+import com.maccoy.mcrpc.core.api.Filter;
 import com.maccoy.mcrpc.core.api.LoadBalancer;
 import com.maccoy.mcrpc.core.api.RegisterCenter;
 import com.maccoy.mcrpc.core.api.Router;
+import com.maccoy.mcrpc.core.cluster.RandomLoadBalancer;
+import com.maccoy.mcrpc.core.filter.CacheFilter;
 import com.maccoy.mcrpc.core.registry.zk.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+
+import java.io.File;
 
 /**
  * @author Maccoy
@@ -36,12 +41,17 @@ public class ConsumerConfig {
 
     @Bean
     public LoadBalancer loadBalancer() {
-        return LoadBalancer.Default;
+        return new RandomLoadBalancer();
     }
 
     @Bean
     public Router router() {
         return Router.Default;
+    }
+
+    @Bean
+    public Filter filter() {
+        return new CacheFilter();
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
