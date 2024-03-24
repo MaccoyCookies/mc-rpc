@@ -11,6 +11,7 @@ import com.maccoy.mcrpc.core.registry.ChangedListener;
 import com.maccoy.mcrpc.core.registry.Event;
 import com.maccoy.mcrpc.core.util.MethodUtils;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
  * @date 2024/3/10 19:47
  * Description 消费者启动类
  */
+@Slf4j
 @Data
 public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAware {
 
@@ -92,7 +94,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         String serviceName = service.getCanonicalName();
         ServiceMeta serviceMeta = new ServiceMeta(app, namespace, env, serviceName);
         List<InstanceMeta> providers = registerCenter.fetchAll(serviceMeta);
-        System.out.println("===> map to providers: " + providers);
+        log.info("===> map to providers: " + providers);
         registerCenter.subscribe(serviceMeta, event -> {
             providers.clear();
             providers.addAll(event.getData());
