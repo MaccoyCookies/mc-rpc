@@ -16,11 +16,11 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="mc-rpc" options="-parameters" />
-      <module name="mc-rpc-consumer" options="-parameters" />
-      <module name="mc-rpc-core" options="-parameters" />
-      <module name="mc-rpc-demo-api" options="-parameters" />
-      <module name="mc-rpc-provider" options="-parameters" />
+      <module name="mc-rpc" options="" />
+      <module name="mc-rpc-consumer" options="" />
+      <module name="mc-rpc-core" options="" />
+      <module name="mc-rpc-demo-api" options="" />
+      <module name="mc-rpc-provider" options="" />
     </option>
   </component>
 </project>

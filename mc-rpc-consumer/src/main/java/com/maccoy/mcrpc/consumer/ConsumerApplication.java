@@ -42,7 +42,7 @@ public class ConsumerApplication {
     @Bean
     ApplicationRunner demoRunner() {
         return runner -> {
-            // testCase();
+            testCase();
         };
     }
 

@@ -8,6 +8,7 @@ import com.maccoy.mcrpc.core.cluster.RandomLoadBalancer;
 import com.maccoy.mcrpc.core.filter.CacheFilter;
 import com.maccoy.mcrpc.core.filter.MockFilter;
 import com.maccoy.mcrpc.core.registry.zk.ZkRegistryCenter;
+import okhttp3.Cache;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -52,7 +53,7 @@ public class ConsumerConfig {
 
     @Bean
     public Filter filter() {
-        return new MockFilter();
+        return new CacheFilter();
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")

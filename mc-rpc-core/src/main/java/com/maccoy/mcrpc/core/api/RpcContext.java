@@ -4,6 +4,7 @@ import com.maccoy.mcrpc.core.meta.InstanceMeta;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Maccoy
@@ -18,5 +19,7 @@ public class RpcContext {
     Router<InstanceMeta> router;
 
     LoadBalancer loadBalancer;
+
+    private Map<String, String> parameters;
 
 }
