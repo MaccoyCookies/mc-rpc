@@ -1,5 +1,6 @@
 package com.maccoy.mcrpc.consumer;
 
+import com.maccoy.mcrpc.core.test.TestZkServer;
 import com.maccoy.mcrpc.provider.ProviderApplication;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -18,6 +19,8 @@ public class BaseTest {
 
     private static ApplicationContext applicationContext;
 
+    private static TestZkServer zkServer;
+
     @BeforeAll
     static void init() {
         applicationContext = SpringApplication.run(ProviderApplication.class, new String[]{});
@@ -26,6 +29,9 @@ public class BaseTest {
     @Test
     void contextLoads() {
         System.out.println(" ===> McRpcDemoConsumerApplicationTests  .... ");
+        zkServer = new TestZkServer();
+        zkServer.start();
+        zkServer.stop();;
     }
 
     @AfterAll
