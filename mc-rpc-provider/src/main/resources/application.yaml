@@ -1,11 +1,2 @@
 server:
   port: 7001
-
-mcrpc:
-  zkServer: localhost:2181
-  zkRoot: mcrpc
-
-app:
-  id: app1
-  namespace: public
-  env: dev
