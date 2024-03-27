@@ -1,7 +1,13 @@
 package com.maccoy.mcrpc.consumer;
 
+import com.maccoy.mcrpc.core.test.TestZkServer;
+import com.maccoy.mcrpc.provider.ProviderApplication;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 
 /**
  * @author Maccoy
@@ -11,9 +17,26 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest(classes = {ConsumerApplication.class})
 public class BaseTest {
 
+    private static ApplicationContext applicationContext;
+
+    private static TestZkServer zkServer;
+
+    @BeforeAll
+    static void init() {
+        applicationContext = SpringApplication.run(ProviderApplication.class, new String[]{});
+    }
+
     @Test
     void contextLoads() {
         System.out.println(" ===> McRpcDemoConsumerApplicationTests  .... ");
+        zkServer = new TestZkServer();
+        zkServer.start();
+        zkServer.stop();;
+    }
+
+    @AfterAll
+    static void destroy() {
+        SpringApplication.exit(applicationContext, () -> 1);
     }
 
 }

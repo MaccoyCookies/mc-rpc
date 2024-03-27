@@ -1,2 +1,13 @@
 server:
   port: 8001
+
+mcrpc:
+  providers: http://localhost:7001
+  zkServer: localhost:2181
+  zkRoot: mcrpc
+
+
+app:
+  id: app1
+  namespace: public
+  env: dev
