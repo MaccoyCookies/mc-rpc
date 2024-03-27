@@ -72,8 +72,7 @@ public class McInvocationHandler implements InvocationHandler {
 
     private static Object caseReturnResult(Method method, RpcResponse<?> rpcResponse) {
         if (rpcResponse.isStatus()) {
-            Object data = rpcResponse.getData();
-            return TypeUtils.castMethodResult(method, data);
+            return TypeUtils.castMethodResult(method, rpcResponse.getData());
         }
         throw new RuntimeException(rpcResponse.getException());
     }
