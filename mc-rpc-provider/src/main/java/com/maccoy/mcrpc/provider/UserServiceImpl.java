@@ -90,4 +90,14 @@ public class UserServiceImpl implements IUserService {
         return !flag;
     }
 
+    @Override
+    public User findById(long id) {
+        return new User((int) id, "Mc");
+    }
+
+    @Override
+    public User ex(boolean flag) {
+        if (flag) throw new RuntimeException("just throw an exception");
+        return new User(19, "Mc");
+    }
 }

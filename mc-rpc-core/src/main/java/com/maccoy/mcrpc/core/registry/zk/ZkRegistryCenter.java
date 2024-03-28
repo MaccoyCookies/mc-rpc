@@ -1,5 +1,6 @@
 package com.maccoy.mcrpc.core.registry.zk;
 
+import com.maccoy.mcrpc.core.api.McRpcException;
 import com.maccoy.mcrpc.core.api.RegisterCenter;
 import com.maccoy.mcrpc.core.meta.InstanceMeta;
 import com.maccoy.mcrpc.core.meta.ServiceMeta;
@@ -60,7 +61,7 @@ public class ZkRegistryCenter implements RegisterCenter {
             curatorFramework.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, "provider".getBytes());
             log.info("zk register ... " + servicePath);
         } catch (Exception exception) {
-            throw new RuntimeException(exception);
+            throw new McRpcException(exception);
         }
     }
 
@@ -76,7 +77,7 @@ public class ZkRegistryCenter implements RegisterCenter {
             curatorFramework.delete().quietly().forPath(instancePath);
             log.info("zk unregister ..." + servicePath);
         } catch (Exception exception) {
-            throw new RuntimeException(exception);
+            throw new McRpcException(exception);
         }
     }
 
@@ -89,7 +90,7 @@ public class ZkRegistryCenter implements RegisterCenter {
             nodes.forEach(System.out::println);
             return mapInstances(nodes);
         } catch (Exception exception) {
-            throw new RuntimeException(exception);
+            throw new McRpcException(exception);
         }
     }
 

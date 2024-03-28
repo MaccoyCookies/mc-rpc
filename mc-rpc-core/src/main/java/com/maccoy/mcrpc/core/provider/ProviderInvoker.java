@@ -1,5 +1,6 @@
 package com.maccoy.mcrpc.core.provider;
 
+import com.maccoy.mcrpc.core.api.McRpcException;
 import com.maccoy.mcrpc.core.api.RpcRequest;
 import com.maccoy.mcrpc.core.api.RpcResponse;
 import com.maccoy.mcrpc.core.meta.ProviderMeta;
@@ -31,9 +32,9 @@ public class ProviderInvoker {
             rpcResponse.setData(res);
             return rpcResponse;
         } catch (InvocationTargetException exception) {
-            rpcResponse.setException(new RuntimeException(exception.getTargetException().getMessage()));
-        } catch (Exception exception) {
-            rpcResponse.setException(new RuntimeException(exception.getMessage()));
+            rpcResponse.setException(new McRpcException(exception.getTargetException().getMessage()));
+        } catch (IllegalAccessException exception) {
+            rpcResponse.setException(new McRpcException(exception.getMessage()));
         }
         return rpcResponse;
     }

@@ -1,6 +1,7 @@
 package com.maccoy.mcrpc.core.consumer.http;
 
 import com.alibaba.fastjson.JSON;
+import com.maccoy.mcrpc.core.api.McRpcException;
 import com.maccoy.mcrpc.core.api.RpcRequest;
 import com.maccoy.mcrpc.core.api.RpcResponse;
 import com.maccoy.mcrpc.core.consumer.HttpInvoker;
@@ -45,7 +46,7 @@ public class OkHttpInvoker implements HttpInvoker {
             return JSON.parseObject(responseJson, RpcResponse.class);
         } catch (Exception exception) {
             exception.printStackTrace();
-            throw new RuntimeException(exception);
+            throw new McRpcException(exception);
         }
     }
 
