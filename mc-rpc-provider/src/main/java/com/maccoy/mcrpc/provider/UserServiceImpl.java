@@ -100,4 +100,17 @@ public class UserServiceImpl implements IUserService {
         if (flag) throw new RuntimeException("just throw an exception");
         return new User(19, "Mc");
     }
+
+    @Override
+    public User find(int timeout) {
+        String port = environment.getProperty("server.port");
+        if ("7001".equals(port)) {
+            try {
+                Thread.sleep(timeout);
+            } catch (InterruptedException exception) {
+                throw new RuntimeException(exception);
+            }
+        }
+        return new User(19, "Mc");
+    }
 }

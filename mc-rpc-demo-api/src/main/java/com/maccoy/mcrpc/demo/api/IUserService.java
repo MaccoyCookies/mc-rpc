@@ -34,4 +34,5 @@ public interface IUserService {
 
     User ex(boolean flag);
 
+    User find(int timeout);
 }

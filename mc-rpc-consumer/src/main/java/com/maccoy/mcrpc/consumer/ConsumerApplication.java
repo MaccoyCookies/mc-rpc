@@ -39,6 +39,11 @@ public class ConsumerApplication {
         return userService.findById(id);
     }
 
+    @RequestMapping("/find")
+    public User find(int timeout) {
+        return userService.find(timeout);
+    }
+
     @Bean
     ApplicationRunner demoRunner() {
         return runner -> {

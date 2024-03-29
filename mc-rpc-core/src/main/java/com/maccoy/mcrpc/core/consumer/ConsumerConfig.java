@@ -5,6 +5,7 @@ import com.maccoy.mcrpc.core.api.LoadBalancer;
 import com.maccoy.mcrpc.core.api.RegisterCenter;
 import com.maccoy.mcrpc.core.api.Router;
 import com.maccoy.mcrpc.core.cluster.RandomLoadBalancer;
+import com.maccoy.mcrpc.core.cluster.RoundLoadBalancer;
 import com.maccoy.mcrpc.core.filter.CacheFilter;
 import com.maccoy.mcrpc.core.filter.MockFilter;
 import com.maccoy.mcrpc.core.registry.zk.ZkRegistryCenter;
@@ -53,7 +54,9 @@ public class ConsumerConfig {
 
     @Bean
     public Filter filter() {
-        return new CacheFilter();
+//        return new CacheFilter();
+
+        return Filter.Default;
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")

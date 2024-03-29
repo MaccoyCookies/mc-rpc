@@ -1,7 +1,7 @@
 package com.maccoy.mcrpc.core.consumer;
 
 import com.maccoy.mcrpc.core.api.Filter;
-import com.maccoy.mcrpc.core.api.McRpcException;
+import com.maccoy.mcrpc.core.api.RpcException;
 import com.maccoy.mcrpc.core.api.RpcContext;
 import com.maccoy.mcrpc.core.api.RpcRequest;
 import com.maccoy.mcrpc.core.api.RpcResponse;
@@ -10,10 +10,10 @@ import com.maccoy.mcrpc.core.meta.InstanceMeta;
 import com.maccoy.mcrpc.core.util.MethodUtils;
 import com.maccoy.mcrpc.core.util.TypeUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 /**
@@ -30,12 +30,14 @@ public class McInvocationHandler implements InvocationHandler {
 
     List<InstanceMeta> providers;
 
-    HttpInvoker httpInvoker = new OkHttpInvoker();
+    HttpInvoker httpInvoker;
 
     public McInvocationHandler(Class<?> service, RpcContext rpcContext, List<InstanceMeta> provider) {
         this.service = service;
         this.providers = provider;
         this.rpcContext = rpcContext;
+        int timeout = Integer.parseInt(rpcContext.getParameters().getOrDefault("app.timeout", "1000"));
+        this.httpInvoker = new OkHttpInvoker(timeout);
     }
 
     @Override
@@ -45,39 +47,50 @@ public class McInvocationHandler implements InvocationHandler {
         }
         RpcRequest rpcRequest = new RpcRequest(service.getCanonicalName(), MethodUtils.methodSign(method), args);
 
-        // 请求过滤器
-        for (Filter filter : this.rpcContext.getFilters()) {
-            Object res = filter.prefixFilter(rpcRequest);
-            if (res != null) {
-                log.info(filter.getClass().getName() + " ==> prefilter: " + res);
+        int reties = Integer.parseInt(rpcContext.getParameters().getOrDefault("app.reties", "1"));
+        while (reties-- > 0) {
+            log.info(" ===> reties: {}", reties);
+            try {
+                // 请求过滤器
+                for (Filter filter : this.rpcContext.getFilters()) {
+                    Object res = filter.prefixFilter(rpcRequest);
+                    if (res != null) {
+                        log.info(filter.getClass().getName() + " ==> prefilter: " + res);
+                        return res;
+                    }
+                }
+
+                List<InstanceMeta> instanceMetas = rpcContext.getRouter().router(this.providers);
+                InstanceMeta instanceMeta = rpcContext.getLoadBalancer().choose(instanceMetas);
+                String url = instanceMeta.toUrl();
+                RpcResponse<?> rpcResponse = httpInvoker.post(rpcRequest, url);
+
+                Object res = caseReturnResult(method, rpcResponse);
+                // 响应过滤器
+                for (Filter filter : this.rpcContext.getFilters()) {
+                    // 加工响应对象
+                    Object postResponse = filter.postFilter(rpcRequest, rpcResponse, res);
+                    if (postResponse != null) {
+                        return postResponse;
+                    }
+                }
                 return res;
+            } catch (RuntimeException exception) {
+                if (!(exception.getCause() instanceof SocketTimeoutException)) {
+                    throw exception;
+                }
             }
         }
-
-        List<InstanceMeta> instanceMetas = rpcContext.getRouter().router(this.providers);
-        InstanceMeta instanceMeta = rpcContext.getLoadBalancer().choose(instanceMetas);
-        String url = instanceMeta.toUrl();
-        RpcResponse<?> rpcResponse = httpInvoker.post(rpcRequest, url);
-
-        Object res = caseReturnResult(method, rpcResponse);
-        // 响应过滤器
-        for (Filter filter : this.rpcContext.getFilters()) {
-            // 加工响应对象
-            Object postResponse = filter.postFilter(rpcRequest, rpcResponse, res);
-            if (postResponse != null) {
-                return postResponse;
-            }
-        }
-        return res;
+        return null;
     }
 
     private static Object caseReturnResult(Method method, RpcResponse<?> rpcResponse) {
         if (rpcResponse.isStatus()) {
             return TypeUtils.castMethodResult(method, rpcResponse.getData());
         }
-        if (rpcResponse.getException() instanceof McRpcException exception) {
+        if (rpcResponse.getException() instanceof RpcException exception) {
             throw exception;
         }
-        throw new McRpcException(rpcResponse.getException(), McRpcException.UnknownEx);
+        throw new RpcException(rpcResponse.getException(), RpcException.UnknownEx);
     }
 }

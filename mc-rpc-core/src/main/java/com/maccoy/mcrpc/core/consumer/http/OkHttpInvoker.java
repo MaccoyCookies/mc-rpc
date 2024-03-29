@@ -1,7 +1,7 @@
 package com.maccoy.mcrpc.core.consumer.http;
 
 import com.alibaba.fastjson.JSON;
-import com.maccoy.mcrpc.core.api.McRpcException;
+import com.maccoy.mcrpc.core.api.RpcException;
 import com.maccoy.mcrpc.core.api.RpcRequest;
 import com.maccoy.mcrpc.core.api.RpcResponse;
 import com.maccoy.mcrpc.core.consumer.HttpInvoker;
@@ -20,18 +20,18 @@ import java.util.concurrent.TimeUnit;
  * Description
  */
 @Slf4j
-public class OkHttpInvoker implements HttpInvoker {
+public class    OkHttpInvoker implements HttpInvoker {
 
     private final static MediaType JSON_TYPE = MediaType.get("application/json; charset=utf-8");
 
     private OkHttpClient okHttpClient;
 
-    public OkHttpInvoker() {
+    public OkHttpInvoker(int timeout) {
         this.okHttpClient = new OkHttpClient.Builder()
                 .connectionPool(new ConnectionPool(16, 60, TimeUnit.SECONDS))
-                .readTimeout(10, TimeUnit.SECONDS)
-                .writeTimeout(10, TimeUnit.SECONDS)
-                .connectTimeout(10, TimeUnit.SECONDS).build();
+                .readTimeout(timeout, TimeUnit.MILLISECONDS)
+                .writeTimeout(timeout, TimeUnit.MILLISECONDS)
+                .connectTimeout(timeout, TimeUnit.MILLISECONDS).build();
     }
 
     @Override
@@ -46,7 +46,7 @@ public class OkHttpInvoker implements HttpInvoker {
             return JSON.parseObject(responseJson, RpcResponse.class);
         } catch (Exception exception) {
             exception.printStackTrace();
-            throw new McRpcException(exception);
+            throw new RpcException(exception);
         }
     }
 

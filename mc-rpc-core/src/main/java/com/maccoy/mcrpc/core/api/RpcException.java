@@ -5,34 +5,34 @@ import lombok.Data;
 /**
  * @author Maccoy
  * @date 2024/3/28 07:43
- * Description
+ * Description RPC 统一异常类
  */
 @Data
-public class McRpcException extends RuntimeException {
+public class RpcException extends RuntimeException {
 
     private String errCode;
 
-    public McRpcException() {
+    public RpcException() {
 
     }
 
-    public McRpcException(String message) {
+    public RpcException(String message) {
         super(message);
     }
 
-    public McRpcException(String message, Throwable cause) {
+    public RpcException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public McRpcException(Throwable cause) {
+    public RpcException(Throwable cause) {
         super(cause);
     }
 
-    protected McRpcException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    protected RpcException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public McRpcException(Throwable cause, String errCode) {
+    public RpcException(Throwable cause, String errCode) {
         super(cause);
         this.errCode = errCode;
     }

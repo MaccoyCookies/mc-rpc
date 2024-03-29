@@ -11,3 +11,5 @@ app:
   id: app1
   namespace: public
   env: dev
+  reties: 2
+  timeout: 2000
