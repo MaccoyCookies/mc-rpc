@@ -1,10 +1,6 @@
 package com.maccoy.mcrpc.core.consumer;
 
-import com.maccoy.mcrpc.core.api.Filter;
-import com.maccoy.mcrpc.core.api.RpcException;
-import com.maccoy.mcrpc.core.api.RpcContext;
-import com.maccoy.mcrpc.core.api.RpcRequest;
-import com.maccoy.mcrpc.core.api.RpcResponse;
+import com.maccoy.mcrpc.core.api.*;
 import com.maccoy.mcrpc.core.consumer.http.OkHttpInvoker;
 import com.maccoy.mcrpc.core.meta.InstanceMeta;
 import com.maccoy.mcrpc.core.util.MethodUtils;
@@ -91,6 +87,6 @@ public class McInvocationHandler implements InvocationHandler {
         if (rpcResponse.getException() instanceof RpcException exception) {
             throw exception;
         }
-        throw new RpcException(rpcResponse.getException(), RpcException.UnknownEx);
+        throw new RpcException(rpcResponse.getException(), RpcExceptionEnum.toExpMsg(RpcExceptionEnum.UNKNOWN));
     }
 }
