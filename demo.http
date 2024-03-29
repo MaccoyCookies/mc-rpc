@@ -22,5 +22,5 @@ Content-Type: application/json
 
 ### 原始请求
 
-GET http://localhost:8001/?id=19
+GET http://localhost:8001/find?timeout=1000
 #Content-Type: application/json
