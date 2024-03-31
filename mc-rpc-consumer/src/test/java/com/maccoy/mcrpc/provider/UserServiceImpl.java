@@ -4,9 +4,11 @@ import com.maccoy.mcrpc.core.annotation.McProvider;
 import com.maccoy.mcrpc.demo.api.IUserService;
 import com.maccoy.mcrpc.demo.api.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -89,4 +91,35 @@ public class UserServiceImpl implements IUserService {
         return !flag;
     }
 
+    @Override
+    public User findById(long id) {
+        return new User((int) id, "Mc");
+    }
+
+    @Override
+    public User ex(boolean flag) {
+        if (flag) throw new RuntimeException("just throw an exception");
+        return new User(19, "Mc");
+    }
+
+    @Value("")
+    String timeoutPorts = "7001";
+
+    @Override
+    public User find(int timeout) {
+        String port = environment.getProperty("server.port");
+        if (Arrays.asList(timeoutPorts.split(",")).contains(port)) {
+            try {
+                Thread.sleep(timeout);
+            } catch (InterruptedException exception) {
+                throw new RuntimeException(exception);
+            }
+        }
+        return new User(19, "Mc_" + port);
+    }
+
+    @Override
+    public void setTimeoutPorts(String timeoutPorts) {
+        this.timeoutPorts = timeoutPorts;
+    }
 }
