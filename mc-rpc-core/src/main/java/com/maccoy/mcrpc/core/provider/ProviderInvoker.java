@@ -8,6 +8,7 @@ import com.maccoy.mcrpc.core.util.TypeUtils;
 import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 import java.util.List;
 
 public class ProviderInvoker {
@@ -26,7 +27,7 @@ public class ProviderInvoker {
         try {
             List<ProviderMeta> providerMetas = skeleton.get(request.getService());
             ProviderMeta providerMeta = findProviderMeta(providerMetas, request.getMethodSign());
-            Object[] args = processArgs(request.getArgs(), providerMeta.getMethod().getParameterTypes());
+            Object[] args = processArgs(request.getArgs(), providerMeta.getMethod().getParameterTypes(), providerMeta.getMethod().getGenericParameterTypes());
             Object res = providerMeta.getMethod().invoke(providerMeta.getServiceImpl(), args);
             rpcResponse.setStatus(true);
             rpcResponse.setData(res);
@@ -39,11 +40,11 @@ public class ProviderInvoker {
         return rpcResponse;
     }
 
-    private Object[] processArgs(Object[] args, Class<?>[] parameterTypes) {
+    private Object[] processArgs(Object[] args, Class<?>[] parameterTypes, Type[] genericParameterTypes) {
         if (args == null || args.length == 0) return args;
         Object[] actualArray = new Object[args.length];
         for (int i = 0; i < args.length; i++) {
-            actualArray[i] = TypeUtils.cast(args[i], parameterTypes[i]);
+            actualArray[i] = TypeUtils.caseGeneric(args[i], parameterTypes[i], genericParameterTypes[i]);
         }
         return actualArray;
     }
