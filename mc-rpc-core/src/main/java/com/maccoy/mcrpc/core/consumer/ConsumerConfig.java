@@ -4,6 +4,7 @@ import com.maccoy.mcrpc.core.api.Filter;
 import com.maccoy.mcrpc.core.api.LoadBalancer;
 import com.maccoy.mcrpc.core.api.RegisterCenter;
 import com.maccoy.mcrpc.core.api.Router;
+import com.maccoy.mcrpc.core.cluster.GrayRouter;
 import com.maccoy.mcrpc.core.cluster.RandomLoadBalancer;
 import com.maccoy.mcrpc.core.cluster.RoundLoadBalancer;
 import com.maccoy.mcrpc.core.filter.CacheFilter;
@@ -27,7 +28,10 @@ import java.io.File;
 public class ConsumerConfig {
 
     @Value("${mcrpc.providers}")
-    String servers;
+    private String servers;
+
+    @Value("${app.grayRatio}")
+    private int grayRatio;
 
     @Bean
     public ConsumerBootstrap createConsumerBootstrap() {
@@ -49,13 +53,12 @@ public class ConsumerConfig {
 
     @Bean
     public Router router() {
-        return Router.Default;
+        return new GrayRouter(grayRatio);
     }
 
     @Bean
     public Filter filter() {
 //        return new CacheFilter();
-
         return Filter.Default;
     }
 

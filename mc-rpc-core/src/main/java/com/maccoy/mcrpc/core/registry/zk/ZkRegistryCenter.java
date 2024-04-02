@@ -57,7 +57,7 @@ public class ZkRegistryCenter implements RegisterCenter {
         String servicePath = "/" + serviceMeta.toPath();
         try {
             if (curatorFramework.checkExists().forPath(servicePath) == null) {
-                curatorFramework.create().withMode(CreateMode.PERSISTENT).forPath(servicePath, "service".getBytes());
+                curatorFramework.create().withMode(CreateMode.PERSISTENT).forPath(servicePath, serviceMeta.toMetas().getBytes());
             }
             String instancePath = servicePath + "/" + instance.toPath();
             curatorFramework.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, instance.toMetas().getBytes());
