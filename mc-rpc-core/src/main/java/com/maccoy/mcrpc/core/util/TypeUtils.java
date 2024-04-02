@@ -69,10 +69,10 @@ public class TypeUtils {
 
     public static Object castMethodResult(Method method, Object data) {
         Class<?> type = method.getReturnType();
+        Type genericReturnType = method.getGenericReturnType();
         if (data instanceof JSONObject jsonObject) {
             if (Map.class.isAssignableFrom(type)) {
                 Map resultMap = new HashMap();
-                Type genericReturnType = method.getGenericReturnType();
                 if (genericReturnType instanceof ParameterizedType parameterizedType) {
                     Class<?> keyType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
                     Class<?> valueType = (Class<?>) parameterizedType.getActualTypeArguments()[1];
@@ -103,7 +103,6 @@ public class TypeUtils {
             } else if (List.class.isAssignableFrom(type)) {
                 List<Object> resList = new ArrayList<>(arr.length);
                 // 范型？
-                Type genericReturnType = method.getGenericReturnType();
                 if (genericReturnType instanceof ParameterizedType parameterizedType) {
                     Class<?> actualType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
                     for (Object obj : arr) {
@@ -121,4 +120,22 @@ public class TypeUtils {
         }
     }
 
+    public static Object caseGeneric(Object data, Class<?> type, Type genericReturnType) {
+        if (List.class.isAssignableFrom(type)) {
+            List arr = (List) data;
+            List<Object> resList = new ArrayList<>(arr.size());
+            // 范型？
+            if (genericReturnType instanceof ParameterizedType parameterizedType) {
+                Class<?> actualType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+                for (Object obj : arr) {
+                    resList.add(TypeUtils.cast(obj, actualType));
+                }
+            } else {
+                resList.addAll(Arrays.asList(arr));
+            }
+            return resList;
+        } else {
+            return TypeUtils.cast(data, type);
+        }
+    }
 }

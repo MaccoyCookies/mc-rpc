@@ -1,5 +1,6 @@
 package com.maccoy.mcrpc.core.registry.zk;
 
+import com.alibaba.fastjson.JSON;
 import com.maccoy.mcrpc.core.api.RpcException;
 import com.maccoy.mcrpc.core.api.RegisterCenter;
 import com.maccoy.mcrpc.core.meta.InstanceMeta;
@@ -16,6 +17,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,10 +57,10 @@ public class ZkRegistryCenter implements RegisterCenter {
         String servicePath = "/" + serviceMeta.toPath();
         try {
             if (curatorFramework.checkExists().forPath(servicePath) == null) {
-                curatorFramework.create().withMode(CreateMode.PERSISTENT).forPath(servicePath, "service".getBytes());
+                curatorFramework.create().withMode(CreateMode.PERSISTENT).forPath(servicePath, serviceMeta.toMetas().getBytes());
             }
             String instancePath = servicePath + "/" + instance.toPath();
-            curatorFramework.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, "provider".getBytes());
+            curatorFramework.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, instance.toMetas().getBytes());
             log.info("zk register ... " + servicePath);
         } catch (Exception exception) {
             throw new RpcException(exception);
@@ -88,16 +90,27 @@ public class ZkRegistryCenter implements RegisterCenter {
             List<String> nodes = curatorFramework.getChildren().forPath(servicePath);
             log.info("fetchAll from zk: " + servicePath);
             nodes.forEach(System.out::println);
-            return mapInstances(nodes);
+            return mapInstances(servicePath, nodes);
         } catch (Exception exception) {
             throw new RpcException(exception);
         }
     }
 
-    private static List<InstanceMeta> mapInstances(List<String> nodes) {
+    private List<InstanceMeta> mapInstances(String servicePath, List<String> nodes) {
         return nodes.stream().map(node -> {
             String[] split = node.split("_");
-            return InstanceMeta.http(split[0], Integer.valueOf(split[1]));
+            InstanceMeta instanceMeta = InstanceMeta.http(split[0], Integer.valueOf(split[1]));
+            System.out.println(" instance: " + instanceMeta.toUrl());
+            String nodePath = servicePath + "/" + node;
+            try {
+                String data = new String(curatorFramework.getData().forPath(nodePath));
+                HashMap params = JSON.parseObject(data, HashMap.class);
+                params.entrySet().stream().forEach(System.out::println);
+                instanceMeta.setParameters(params);
+            } catch (Exception exception) {
+                throw new RuntimeException(exception);
+            }
+            return instanceMeta;
         }).collect(Collectors.toList());
     }
 

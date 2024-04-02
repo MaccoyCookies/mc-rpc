@@ -22,14 +22,14 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public User findById(int id) {
-        return new User(id, "KK-"
+        return new User(id, "Mc-V1"
                 + environment.getProperty("server.port")
                 + "_" + System.currentTimeMillis());
     }
 
     @Override
     public User findById(int id, String name) {
-        return new User(id, "KK-" + name + "_" + System.currentTimeMillis());
+        return new User(id, "Mc-" + name + "_" + System.currentTimeMillis());
     }
 
     @Override
@@ -49,12 +49,12 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public String getName() {
-        return "KK123";
+        return "Mc123";
     }
 
     @Override
     public String getName(int id) {
-        return "Cola-" + id;
+        return "Mc-" + id;
     }
 
     @Override
@@ -79,6 +79,10 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public List<User> getList(List<User> userList) {
+        User[] users = userList.toArray(new User[0]);
+        System.out.println(" ===> userList.toArray()[] = ");
+        Arrays.stream(users).forEach(System.out::println);
+        userList.add(new User(19, "Mc"));
         return userList;
     }
 
