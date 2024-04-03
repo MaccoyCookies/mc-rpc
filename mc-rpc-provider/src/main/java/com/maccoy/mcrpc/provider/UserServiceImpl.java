@@ -2,6 +2,7 @@ package com.maccoy.mcrpc.provider;
 
 import com.alibaba.fastjson.JSON;
 import com.maccoy.mcrpc.core.annotation.McProvider;
+import com.maccoy.mcrpc.core.api.RpcContext;
 import com.maccoy.mcrpc.demo.api.IUserService;
 import com.maccoy.mcrpc.demo.api.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,6 +127,13 @@ public class UserServiceImpl implements IUserService {
     @Override
     public void setTimeoutPorts(String timeoutPorts) {
         this.timeoutPorts = timeoutPorts;
+    }
+
+    @Override
+    public String echoParameter(String key) {
+        System.out.println(" ====>> RpcContext.ContextParameters: ");
+        RpcContext.getContextParameters().forEach((k,v)-> System.out.println(k+" -> " +v));
+        return RpcContext.getContextParameter(key);
     }
 
 }

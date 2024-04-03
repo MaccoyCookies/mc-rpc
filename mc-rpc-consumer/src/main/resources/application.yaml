@@ -2,7 +2,6 @@ server:
   port: 8001
 
 mcrpc:
-  providers: http://localhost:7001
   zkServer: localhost:2181
   zkRoot: mcrpc
 

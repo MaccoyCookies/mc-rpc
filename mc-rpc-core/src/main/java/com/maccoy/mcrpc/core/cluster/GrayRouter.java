@@ -54,4 +54,9 @@ public class GrayRouter implements Router<InstanceMeta> {
         }
 //        return providers;
     }
+
+    public void setGrayRatio(int grayRatio) {
+        this.grayRatio = grayRatio;
+    }
+
 }

@@ -65,8 +65,7 @@ public class McInvocationHandler implements InvocationHandler {
         if (MethodUtils.checkLocalMethod(method.getName())) {
             return null;
         }
-        RpcRequest rpcRequest = new RpcRequest(service.getCanonicalName(), MethodUtils.methodSign(method), args);
-
+        RpcRequest rpcRequest = new RpcRequest(service.getCanonicalName(), MethodUtils.methodSign(method), args, RpcContext.getContextParameters());
         int reties = Integer.parseInt(rpcContext.getParameters().getOrDefault("app.reties", "1"));
         while (reties-- > 0) {
             log.info(" ===> reties: {}", reties);

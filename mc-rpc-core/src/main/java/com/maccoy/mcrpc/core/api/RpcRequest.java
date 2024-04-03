@@ -6,6 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Data
 @Builder
 @ToString
@@ -30,4 +33,9 @@ public class RpcRequest {
      * 100
      */
     private Object[] args;
+
+    /**
+     * 跨调用方需要传递的参数
+     */
+    private Map<String,String> params = new HashMap<>();
 }

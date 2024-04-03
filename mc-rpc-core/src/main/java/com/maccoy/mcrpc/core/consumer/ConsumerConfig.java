@@ -4,12 +4,14 @@ import com.maccoy.mcrpc.core.api.Filter;
 import com.maccoy.mcrpc.core.api.LoadBalancer;
 import com.maccoy.mcrpc.core.api.RegisterCenter;
 import com.maccoy.mcrpc.core.api.Router;
+import com.maccoy.mcrpc.core.api.RpcContext;
 import com.maccoy.mcrpc.core.cluster.GrayRouter;
 import com.maccoy.mcrpc.core.cluster.RandomLoadBalancer;
 import com.maccoy.mcrpc.core.cluster.RoundLoadBalancer;
 import com.maccoy.mcrpc.core.filter.CacheFilter;
 import com.maccoy.mcrpc.core.filter.MockFilter;
 import com.maccoy.mcrpc.core.registry.zk.ZkRegistryCenter;
+import lombok.Data;
 import okhttp3.Cache;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
@@ -18,20 +20,34 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * @author Maccoy
  * @date 2024/3/10 19:49
  * Description
  */
+@Data
 @Configuration
 public class ConsumerConfig {
 
-    @Value("${mcrpc.providers}")
-    private String servers;
-
     @Value("${app.grayRatio}")
     private int grayRatio;
+
+    @Value("${app.id}")
+    private String app;
+
+    @Value("${app.namespace}")
+    private String namespace;
+
+    @Value("${app.env}")
+    private String env;
+
+    @Value("${app.reties}")
+    private Integer reties;
+
+    @Value("${app.timeout}")
+    private Integer timeout;
 
     @Bean
     public ConsumerBootstrap createConsumerBootstrap() {
@@ -58,7 +74,7 @@ public class ConsumerConfig {
 
     @Bean
     public Filter filter() {
-//        return new CacheFilter();
+        // return new CacheFilter();
         return Filter.Default;
     }
 

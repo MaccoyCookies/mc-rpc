@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -42,49 +43,23 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private final Map<String, Object> stub = new HashMap<>();
 
-    @Value("${app.id}")
-    private String app;
-
-    @Value("${app.namespace}")
-    private String namespace;
-
-    @Value("${app.env}")
-    private String env;
-
-    @Value("${app.reties}")
-    private Integer reties;
-
-    @Value("${app.timeout}")
-    private Integer timeout;
-
-    @Value("${app.grayRatio}")
-    private int grayRatio;
-
     public void start() {
-        LoadBalancer loadBalancer = applicationContext.getBean(LoadBalancer.class);
-        Router router = applicationContext.getBean(Router.class);
         RegisterCenter registerCenter = applicationContext.getBean(RegisterCenter.class);
+        ConsumerConfig consumerConfig = applicationContext.getBean(ConsumerConfig.class);
+        Router router = applicationContext.getBean(Router.class);
+        LoadBalancer loadBalancer = applicationContext.getBean(LoadBalancer.class);
         List<Filter> filters = applicationContext.getBeansOfType(Filter.class).values().stream().toList();
         RpcContext rpcContext = new RpcContext();
         rpcContext.setRouter(router);
         rpcContext.setLoadBalancer(loadBalancer);
         rpcContext.setFilters(filters);
-        rpcContext.getParameters().put("app.reties", String.valueOf(reties));
-        rpcContext.getParameters().put("app.timeout", String.valueOf(timeout));
-        rpcContext.getParameters().put("app.grayRatio", String.valueOf(grayRatio));
+        rpcContext.getParameters().put("app.reties", String.valueOf(consumerConfig.getReties()));
+        rpcContext.getParameters().put("app.timeout", String.valueOf(consumerConfig.getTimeout()));
+        rpcContext.getParameters().put("app.grayRatio", String.valueOf(consumerConfig.getGrayRatio()));
 
-        String[] names = applicationContext.getBeanDefinitionNames();
-        for (String name : names) {
+        for (String name : applicationContext.getBeanDefinitionNames()) {
             Object bean = applicationContext.getBean(name);
-            String packageName = bean.getClass().getPackageName();
-            if (packageName.startsWith("org.springframework")
-                    || packageName.startsWith("java.")
-                    || packageName.startsWith("javax.")
-                    || packageName.startsWith("jdk.")
-                    || packageName.startsWith("com.fasterxml.")
-                    || packageName.startsWith("com.sun.")
-                    || packageName.startsWith("jakarta.")
-                    || packageName.startsWith("org.apache")) {
+            if (filterSystemPackage(bean.getClass().getPackageName())) {
                 continue;
             }
             List<Field> fields = MethodUtils.findAnnotatedField(bean.getClass(), McConsumer.class);
@@ -93,21 +68,20 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                     Class<?> service = field.getType();
                     String canonicalName = service.getCanonicalName();
                     if (stub.containsKey(canonicalName)) continue;
-                    // Object consumer = createConsumer(service, rpcContext, providers);
-                    Object consumer = createConsumerFromRegister(service, rpcContext, registerCenter);
+                    Object consumer = createConsumerFromRegister(service, rpcContext, registerCenter, consumerConfig);
                     stub.put(canonicalName, consumer);
                     field.setAccessible(true);
                     field.set(bean, consumer);
                 } catch (Exception exception) {
-                    exception.printStackTrace();
+                    log.error("scan @interface McConsumer inject field error, field: {}. ", field.getName(), exception);
                 }
             }
         }
     }
 
-    private Object createConsumerFromRegister(Class<?> service, RpcContext rpcContext, RegisterCenter registerCenter) {
+    private Object createConsumerFromRegister(Class<?> service, RpcContext rpcContext, RegisterCenter registerCenter, ConsumerConfig consumerConfig) {
         String serviceName = service.getCanonicalName();
-        ServiceMeta serviceMeta = new ServiceMeta(app, namespace, env, serviceName);
+        ServiceMeta serviceMeta = new ServiceMeta(consumerConfig.getApp(), consumerConfig.getNamespace(), consumerConfig.getEnv(), serviceName);
         List<InstanceMeta> providers = registerCenter.fetchAll(serviceMeta);
         log.info("===> map to providers: " + providers);
         registerCenter.subscribe(serviceMeta, event -> {
@@ -117,9 +91,18 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         return createConsumer(service, rpcContext, providers);
     }
 
-
     private Object createConsumer(Class<?> service, RpcContext rpcContext, List<InstanceMeta> providers) {
         return Proxy.newProxyInstance(service.getClassLoader(), new Class[]{service}, new McInvocationHandler(service, rpcContext, providers));
     }
 
+    private boolean filterSystemPackage(String packageName) {
+        return packageName.startsWith("org.springframework")
+                || packageName.startsWith("java.")
+                || packageName.startsWith("javax.")
+                || packageName.startsWith("jdk.")
+                || packageName.startsWith("com.fasterxml.")
+                || packageName.startsWith("com.sun.")
+                || packageName.startsWith("jakarta.")
+                || packageName.startsWith("org.apache");
+    }
 }

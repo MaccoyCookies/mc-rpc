@@ -1,5 +1,6 @@
 package com.maccoy.mcrpc.core.provider;
 
+import com.maccoy.mcrpc.core.api.RpcContext;
 import com.maccoy.mcrpc.core.api.RpcException;
 import com.maccoy.mcrpc.core.api.RpcRequest;
 import com.maccoy.mcrpc.core.api.RpcResponse;
@@ -28,6 +29,7 @@ public class ProviderInvoker {
             List<ProviderMeta> providerMetas = skeleton.get(request.getService());
             ProviderMeta providerMeta = findProviderMeta(providerMetas, request.getMethodSign());
             Object[] args = processArgs(request.getArgs(), providerMeta.getMethod().getParameterTypes(), providerMeta.getMethod().getGenericParameterTypes());
+            request.getParams().forEach(RpcContext::setContextParameter);
             Object res = providerMeta.getMethod().invoke(providerMeta.getServiceImpl(), args);
             rpcResponse.setStatus(true);
             rpcResponse.setData(res);

@@ -1,9 +1,13 @@
 package com.maccoy.mcrpc.consumer;
 
 import com.maccoy.mcrpc.core.annotation.McConsumer;
+import com.maccoy.mcrpc.core.api.Router;
+import com.maccoy.mcrpc.core.api.RpcContext;
+import com.maccoy.mcrpc.core.cluster.GrayRouter;
 import com.maccoy.mcrpc.core.consumer.ConsumerConfig;
 import com.maccoy.mcrpc.demo.api.IUserService;
 import com.maccoy.mcrpc.demo.api.User;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -34,6 +38,15 @@ public class ConsumerApplication {
 
     @McConsumer
     IUserService userService;
+
+    @Autowired
+    Router router;
+
+    @RequestMapping("/gray")
+    public String gray(@RequestParam("ratio") int ratio) {
+        ((GrayRouter)router).setGrayRatio(ratio);
+        return "OK-new gray ratio is " + ratio;
+    }
 
     @RequestMapping("/")
     public User findBy(@RequestParam("id") int id) {
@@ -150,6 +163,17 @@ public class ConsumerApplication {
         userService.find(1100);
         System.out.println("userService.find take "
                 + (System.currentTimeMillis()-start) + " ms");
+
+        System.out.println("Case 19. >>===[测试通过Context跨消费者和提供者进行传参]===");
+        String Key_Version = "rpc.version";
+        String Key_Message = "rpc.message";
+        RpcContext.setContextParameter(Key_Version, "v8");
+        RpcContext.setContextParameter(Key_Message, "this is a test message");
+        String version = userService.echoParameter(Key_Version);
+        String message = userService.echoParameter(Key_Message);
+        System.out.println(" ===> echo parameter from c->p->c: " + Key_Version + " -> " + version);
+        System.out.println(" ===> echo parameter from c->p->c: " + Key_Message + " -> " + message);
+        RpcContext.clearContextParameters();
     }
 
 }

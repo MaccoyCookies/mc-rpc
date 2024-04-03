@@ -23,4 +23,28 @@ public class RpcContext {
 
     private Map<String, String> parameters = new HashMap<>();
 
+    private static ThreadLocal<Map<String, String>> ContextParameters = ThreadLocal.withInitial(HashMap::new);
+
+    public static void setContextParameter(String key, String value) {
+        ContextParameters.get().put(key, value);
+    }
+
+    public static String getContextParameter(String key) {
+        return ContextParameters.get().get(key);
+    }
+
+    public static void removeContextParameter(String key) {
+        ContextParameters.get().remove(key);
+    }
+
+    public static void clearContextParameters() {
+        ContextParameters.get().clear();
+    }
+
+    public static Map<String, String> getContextParameters() {
+        return ContextParameters.get();
+    }
+
+
+
 }

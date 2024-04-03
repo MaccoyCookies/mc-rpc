@@ -81,7 +81,6 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private void registerService(String serviceName) {
         RegisterCenter registerCenter = applicationContext.getBean(RegisterCenter.class);
-
         ServiceMeta serviceMeta = new ServiceMeta(app, namespace, env, serviceName);
         registerCenter.register(serviceMeta, instance);
     }
