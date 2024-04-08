@@ -38,4 +38,10 @@ public class RpcRequest {
      * 跨调用方需要传递的参数
      */
     private Map<String,String> params = new HashMap<>();
+
+    public RpcRequest(String service, String methodSign, Object[] args) {
+        this.service = service;
+        this.methodSign = methodSign;
+        this.args = args;
+    }
 }

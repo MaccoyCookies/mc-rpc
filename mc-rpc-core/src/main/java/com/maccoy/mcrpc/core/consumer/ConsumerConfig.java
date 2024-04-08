@@ -10,6 +10,7 @@ import com.maccoy.mcrpc.core.cluster.RandomLoadBalancer;
 import com.maccoy.mcrpc.core.cluster.RoundLoadBalancer;
 import com.maccoy.mcrpc.core.filter.CacheFilter;
 import com.maccoy.mcrpc.core.filter.MockFilter;
+import com.maccoy.mcrpc.core.filter.ParamFilter;
 import com.maccoy.mcrpc.core.registry.zk.ZkRegistryCenter;
 import lombok.Data;
 import okhttp3.Cache;
@@ -76,6 +77,11 @@ public class ConsumerConfig {
     public Filter filter() {
         // return new CacheFilter();
         return Filter.Default;
+    }
+
+    @Bean
+    public Filter paramFilter() {
+        return new ParamFilter();
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")

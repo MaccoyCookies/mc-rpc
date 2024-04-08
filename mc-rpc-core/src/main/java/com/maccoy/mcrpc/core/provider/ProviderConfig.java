@@ -2,10 +2,12 @@ package com.maccoy.mcrpc.core.provider;
 
 import com.maccoy.mcrpc.core.api.RegisterCenter;
 import com.maccoy.mcrpc.core.registry.zk.ZkRegistryCenter;
+import com.maccoy.mcrpc.core.transport.SpringBootTransport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 
 /**
@@ -14,6 +16,7 @@ import org.springframework.core.annotation.Order;
  * Description
  */
 @Configuration
+@Import({SpringBootTransport.class})
 public class ProviderConfig {
 
     @Bean

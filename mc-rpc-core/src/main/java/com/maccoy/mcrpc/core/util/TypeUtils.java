@@ -76,9 +76,9 @@ public class TypeUtils {
                 if (genericReturnType instanceof ParameterizedType parameterizedType) {
                     Class<?> keyType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
                     Class<?> valueType = (Class<?>) parameterizedType.getActualTypeArguments()[1];
-                    jsonObject.entrySet().stream().forEach(obj -> {
-                        Object key = TypeUtils.cast(obj.getKey(), keyType);
-                        Object value = TypeUtils.cast(obj.getKey(), valueType);
+                    jsonObject.forEach((k, v) -> {
+                        Object key = TypeUtils.cast(k, keyType);
+                        Object value = TypeUtils.cast(v, valueType);
                         resultMap.put(key, value);
                     });
                 }
@@ -134,8 +134,21 @@ public class TypeUtils {
                 resList.addAll(Arrays.asList(arr));
             }
             return resList;
+        } else if (Map.class.isAssignableFrom(type)) {
+            Map map = (Map) data;
+            Map resultMap = new HashMap();
+            if (genericReturnType instanceof ParameterizedType parameterizedType) {
+                Class<?> keyType = (Class<?>) parameterizedType.getActualTypeArguments()[0];
+                Class<?> valueType = (Class<?>) parameterizedType.getActualTypeArguments()[1];
+                map.forEach((k, v) -> {
+                    Object key = cast(k, keyType);
+                    Object value = cast(v, valueType);
+                    resultMap.put(key, value);
+                });
+            }
+            return resultMap;
         } else {
-            return TypeUtils.cast(data, type);
+            return cast(data, type);
         }
     }
 }
