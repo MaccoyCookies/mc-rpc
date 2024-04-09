@@ -13,6 +13,6 @@ public class RpcResponse<T> {
 
     private T data;
 
-    Exception exception;
+    RpcException exception;
 
 }

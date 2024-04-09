@@ -4,15 +4,18 @@ server:
 mcrpc:
   zkServer: localhost:2181
   zkRoot: mcrpc
+  app:
+    id: app1
+    namespace: public
+    env: dev
+  consumer:
+    retries: 1
+    timeout: 1000
+    faultLimit: 10
+    halfOpenInitialDelay: 10_000
+    halfOpenDelay: 60_000
+    grayRatio: 0
 
-
-app:
-  id: app1
-  namespace: public
-  env: dev
-  reties: 2
-  timeout: 1000
-  grayRatio: 10
 
 logging:
   level:

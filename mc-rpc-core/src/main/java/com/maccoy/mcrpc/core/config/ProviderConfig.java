@@ -1,9 +1,12 @@
-package com.maccoy.mcrpc.core.provider;
+package com.maccoy.mcrpc.core.config;
 
 import com.maccoy.mcrpc.core.api.RegisterCenter;
+import com.maccoy.mcrpc.core.provider.ProviderBootstrap;
+import com.maccoy.mcrpc.core.provider.ProviderInvoker;
 import com.maccoy.mcrpc.core.registry.zk.ZkRegistryCenter;
 import com.maccoy.mcrpc.core.transport.SpringBootTransport;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,12 +19,21 @@ import org.springframework.core.annotation.Order;
  * Description
  */
 @Configuration
-@Import({SpringBootTransport.class})
+@Import({AppConfigProperties.class, ProviderConfigProperties.class, SpringBootTransport.class})
 public class ProviderConfig {
+
+    @Value("${server.port}")
+    private Integer port;
+
+    @Autowired
+    private AppConfigProperties appConfigProperties;
+
+    @Autowired
+    private ProviderConfigProperties providerConfigProperties;
 
     @Bean
     public ProviderBootstrap providerBootstrap() {
-        return new ProviderBootstrap();
+        return new ProviderBootstrap(port, appConfigProperties, providerConfigProperties);
     }
 
     @Bean

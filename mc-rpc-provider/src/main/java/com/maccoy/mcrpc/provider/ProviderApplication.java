@@ -1,6 +1,6 @@
 package com.maccoy.mcrpc.provider;
 
-import com.maccoy.mcrpc.core.provider.ProviderConfig;
+import com.maccoy.mcrpc.core.config.ProviderConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;

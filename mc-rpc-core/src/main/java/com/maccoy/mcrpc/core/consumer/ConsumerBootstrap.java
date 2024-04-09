@@ -6,14 +6,12 @@ import com.maccoy.mcrpc.core.api.LoadBalancer;
 import com.maccoy.mcrpc.core.api.RegisterCenter;
 import com.maccoy.mcrpc.core.api.Router;
 import com.maccoy.mcrpc.core.api.RpcContext;
+import com.maccoy.mcrpc.core.config.ConsumerConfig;
 import com.maccoy.mcrpc.core.meta.InstanceMeta;
 import com.maccoy.mcrpc.core.meta.ServiceMeta;
-import com.maccoy.mcrpc.core.registry.ChangedListener;
-import com.maccoy.mcrpc.core.registry.Event;
 import com.maccoy.mcrpc.core.util.MethodUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
@@ -21,12 +19,9 @@ import org.springframework.core.env.Environment;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * @author Maccoy
@@ -45,17 +40,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     public void start() {
         RegisterCenter registerCenter = applicationContext.getBean(RegisterCenter.class);
-        ConsumerConfig consumerConfig = applicationContext.getBean(ConsumerConfig.class);
-        Router router = applicationContext.getBean(Router.class);
-        LoadBalancer loadBalancer = applicationContext.getBean(LoadBalancer.class);
-        List<Filter> filters = applicationContext.getBeansOfType(Filter.class).values().stream().toList();
-        RpcContext rpcContext = new RpcContext();
-        rpcContext.setRouter(router);
-        rpcContext.setLoadBalancer(loadBalancer);
-        rpcContext.setFilters(filters);
-        rpcContext.getParameters().put("app.reties", String.valueOf(consumerConfig.getReties()));
-        rpcContext.getParameters().put("app.timeout", String.valueOf(consumerConfig.getTimeout()));
-        rpcContext.getParameters().put("app.grayRatio", String.valueOf(consumerConfig.getGrayRatio()));
+        RpcContext rpcContext = applicationContext.getBean(RpcContext.class);
 
         for (String name : applicationContext.getBeanDefinitionNames()) {
             Object bean = applicationContext.getBean(name);
@@ -68,7 +53,7 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                     Class<?> service = field.getType();
                     String canonicalName = service.getCanonicalName();
                     if (stub.containsKey(canonicalName)) continue;
-                    Object consumer = createConsumerFromRegister(service, rpcContext, registerCenter, consumerConfig);
+                    Object consumer = createConsumerFromRegister(service, rpcContext, registerCenter);
                     stub.put(canonicalName, consumer);
                     field.setAccessible(true);
                     field.set(bean, consumer);
@@ -79,9 +64,13 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         }
     }
 
-    private Object createConsumerFromRegister(Class<?> service, RpcContext rpcContext, RegisterCenter registerCenter, ConsumerConfig consumerConfig) {
+    private Object createConsumerFromRegister(Class<?> service, RpcContext rpcContext, RegisterCenter registerCenter) {
         String serviceName = service.getCanonicalName();
-        ServiceMeta serviceMeta = new ServiceMeta(consumerConfig.getApp(), consumerConfig.getNamespace(), consumerConfig.getEnv(), serviceName);
+        ServiceMeta serviceMeta = new ServiceMeta(
+                rpcContext.getParameters().get("app.id"),
+                rpcContext.getParameters().get("app.namespace"),
+                rpcContext.getParameters().get("app.env"),
+                serviceName);
         List<InstanceMeta> providers = registerCenter.fetchAll(serviceMeta);
         log.info("===> map to providers: " + providers);
         registerCenter.subscribe(serviceMeta, event -> {

@@ -48,7 +48,7 @@ public class McInvocationHandler implements InvocationHandler {
         this.service = service;
         this.providers = provider;
         this.rpcContext = rpcContext;
-        int timeout = Integer.parseInt(rpcContext.getParameters().getOrDefault("app.timeout", "1000"));
+        int timeout = Integer.parseInt(rpcContext.getParameters().getOrDefault("consumer.timeout", "1000"));
         this.httpInvoker = new OkHttpInvoker(timeout);
         this.executorService = Executors.newScheduledThreadPool(1);
         this.executorService.scheduleWithFixedDelay(this::halfOpen, 10, 60, TimeUnit.SECONDS);
@@ -66,7 +66,7 @@ public class McInvocationHandler implements InvocationHandler {
             return null;
         }
         RpcRequest rpcRequest = new RpcRequest(service.getCanonicalName(), MethodUtils.methodSign(method), args);
-        int reties = Integer.parseInt(rpcContext.getParameters().getOrDefault("app.reties", "1"));
+        int reties = Integer.parseInt(rpcContext.getParameters().getOrDefault("consumer.retries", "1"));
         while (reties-- > 0) {
             log.info(" ===> reties: {}", reties);
             try {
@@ -149,9 +149,14 @@ public class McInvocationHandler implements InvocationHandler {
         if (rpcResponse.isStatus()) {
             return TypeUtils.castMethodResult(method, rpcResponse.getData());
         }
-        if (rpcResponse.getException() instanceof RpcException exception) {
-            throw exception;
+        // if (rpcResponse.getException() instanceof RpcException exception) {
+        //     throw exception;
+        // }
+        // throw new RpcException(rpcResponse.getException(), RpcExceptionEnum.toExpMsg(RpcExceptionEnum.UNKNOWN));
+        if (rpcResponse.getException() != null) {
+            log.error("response error. ", rpcResponse.getException());
+            throw rpcResponse.getException();
         }
-        throw new RpcException(rpcResponse.getException(), RpcExceptionEnum.toExpMsg(RpcExceptionEnum.UNKNOWN));
+        return null;
     }
 }

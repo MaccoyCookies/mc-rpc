@@ -4,7 +4,7 @@ import com.maccoy.mcrpc.core.annotation.McConsumer;
 import com.maccoy.mcrpc.core.api.Router;
 import com.maccoy.mcrpc.core.api.RpcContext;
 import com.maccoy.mcrpc.core.cluster.GrayRouter;
-import com.maccoy.mcrpc.core.consumer.ConsumerConfig;
+import com.maccoy.mcrpc.core.config.ConsumerConfig;
 import com.maccoy.mcrpc.demo.api.IUserService;
 import com.maccoy.mcrpc.demo.api.User;
 import org.springframework.beans.factory.annotation.Autowired;

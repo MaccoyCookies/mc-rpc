@@ -2,6 +2,8 @@ package com.maccoy.mcrpc.core.provider;
 
 import com.maccoy.mcrpc.core.annotation.McProvider;
 import com.maccoy.mcrpc.core.api.RegisterCenter;
+import com.maccoy.mcrpc.core.config.AppConfigProperties;
+import com.maccoy.mcrpc.core.config.ProviderConfigProperties;
 import com.maccoy.mcrpc.core.meta.InstanceMeta;
 import com.maccoy.mcrpc.core.meta.ProviderMeta;
 import com.maccoy.mcrpc.core.meta.ServiceMeta;
@@ -32,29 +34,25 @@ import java.util.Map;
 @Data
 public class ProviderBootstrap implements ApplicationContextAware {
 
-    @Autowired
     private ApplicationContext applicationContext;
 
     private final MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
+
+    private Integer port;
 
     private InstanceMeta instance;
 
     private RegisterCenter registerCenter;
 
-    @Value("${server.port}")
-    private Integer port;
+    private AppConfigProperties appConfigProperties;
 
-    @Value("${app.id}")
-    private String app;
+    private ProviderConfigProperties providerConfigProperties;
 
-    @Value("${app.namespace}")
-    private String namespace;
-
-    @Value("${app.env}")
-    private String env;
-
-    @Value("#{${app.metas}}")
-    private Map<String, String> metas;
+    public ProviderBootstrap(Integer port, AppConfigProperties appConfigProperties, ProviderConfigProperties providerConfigProperties) {
+        this.port = port;
+        this.appConfigProperties = appConfigProperties;
+        this.providerConfigProperties = providerConfigProperties;
+    }
 
     @PostConstruct
     public void init() {
@@ -67,7 +65,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
     public void start() {
         String ip = InetAddress.getLocalHost().getHostAddress();
         this.instance = InstanceMeta.http(ip, port);
-        this.instance.getParameters().putAll(metas);
+        this.instance.getParameters().putAll(providerConfigProperties.getMetas());
         registerCenter.start();
         skeleton.keySet().forEach(this::registerService);
     }
@@ -81,13 +79,13 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private void registerService(String serviceName) {
         RegisterCenter registerCenter = applicationContext.getBean(RegisterCenter.class);
-        ServiceMeta serviceMeta = new ServiceMeta(app, namespace, env, serviceName);
+        ServiceMeta serviceMeta = new ServiceMeta(appConfigProperties.getId(), appConfigProperties.getNamespace(), appConfigProperties.getEnv(), serviceName);
         registerCenter.register(serviceMeta, instance);
     }
 
     private void unregisterService(String serviceName) {
         RegisterCenter registerCenter = applicationContext.getBean(RegisterCenter.class);
-        ServiceMeta serviceMeta = new ServiceMeta(app, namespace, env, serviceName);
+        ServiceMeta serviceMeta = new ServiceMeta(appConfigProperties.getId(), appConfigProperties.getNamespace(), appConfigProperties.getEnv(), serviceName);
         registerCenter.unregister(serviceMeta, instance);
     }
 

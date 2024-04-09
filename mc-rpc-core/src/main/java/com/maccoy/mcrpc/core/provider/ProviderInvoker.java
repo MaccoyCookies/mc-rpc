@@ -38,6 +38,9 @@ public class ProviderInvoker {
             rpcResponse.setException(new RpcException(exception.getTargetException().getMessage()));
         } catch (IllegalAccessException exception) {
             rpcResponse.setException(new RpcException(exception.getMessage()));
+        } finally {
+            // 防止内存泄漏
+            RpcContext.clearContextParameters();
         }
         return rpcResponse;
     }
