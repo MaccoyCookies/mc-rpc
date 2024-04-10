@@ -9,10 +9,10 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "mcrpc.app")
 public class AppConfigProperties {
 
-    private String id;
+    private String id = "app1";
 
-    private String namespace;
+    private String namespace = "public";
 
-    private String env;
+    private String env = "dev";
 
 }
