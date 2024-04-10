@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.maccoy</groupId>
+        <groupId>io.github.maccoycookies</groupId>
         <artifactId>mc-rpc</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>${mcrpc.version}</version>
     </parent>
 
     <artifactId>mc-rpc-provider</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>${mcrpc.version}</version>
 
     <dependencyManagement>
         <dependencies>
@@ -27,12 +27,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.maccoy</groupId>
+            <groupId>io.github.maccoycookies</groupId>
             <artifactId>mc-rpc-demo-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.maccoy</groupId>
+            <groupId>io.github.maccoycookies</groupId>
             <artifactId>mc-rpc-core</artifactId>
         </dependency>
 

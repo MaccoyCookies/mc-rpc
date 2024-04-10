@@ -3,9 +3,36 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.maccoy</groupId>
+    <groupId>io.github.maccoycookies</groupId>
     <artifactId>mc-rpc</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>${mcrpc.version}</version>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.com/MaccoyCookies/mc-rpc/issues</url>
+    </issueManagement>
+
+    <scm>
+        <connection>scm:git:https://github.com/MaccoyCookies/mc-rpc.git</connection>
+        <developerConnection>scm:git:https://github.com/MaccoyCookies/mc-rpc.git</developerConnection>
+        <url>https://github.com/MaccoyCookies/mc-rpc</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>maccoycookies</name>
+            <email>maccoycookies@apache.org</email>
+            <url>http://maccoycookies.cn</url>
+        </developer>
+    </developers>
 
     <properties>
         <java.version>17</java.version>
@@ -13,6 +40,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <maven.compiler.compilerVersion>17</maven.compiler.compilerVersion>
         <spring.boot.version>3.2.3</spring.boot.version>
+        <mcrpc.version>1.0-SNAPSHOT</mcrpc.version>
     </properties>
 
     <packaging>pom</packaging>
@@ -27,27 +55,27 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.maccoy</groupId>
+                <groupId>io.github.maccoycookies</groupId>
                 <artifactId>mc-rpc-demo-api</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${mcrpc.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.maccoy</groupId>
+                <groupId>io.github.maccoycookies</groupId>
                 <artifactId>mc-rpc-core</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${mcrpc.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.maccoy</groupId>
+                <groupId>io.github.maccoycookies</groupId>
                 <artifactId>mc-rpc-provider</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${mcrpc.version}</version>
             </dependency>
 
             <dependency>
-                <groupId>com.maccoy</groupId>
+                <groupId>io.github.maccoycookies</groupId>
                 <artifactId>mc-rpc-consumer</artifactId>
-                <version>1.0-SNAPSHOT</version>
+                <version>${mcrpc.version}</version>
             </dependency>
 
             <dependency>
@@ -87,5 +115,35 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.5.0</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>oss</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                        <phase>clean</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
