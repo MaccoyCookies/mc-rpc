@@ -29,16 +29,22 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ZkRegistryCenter implements RegisterCenter {
 
-    @Value("${mcrpc.zkServer}")
+    @Value("${mcrpc.zkServer:localhost:2181}")
     private String zkServer;
 
-    @Value("${mcrpc.zkRoot}")
+    @Value("${mcrpc.zkRoot:mcrpc}")
     private String zkRoot;
 
     private CuratorFramework curatorFramework = null;
 
+    private boolean running = false;
+
     @Override
-    public void start() {
+    public synchronized void start() {
+        if (running) {
+            log.info(" ===> zk client has started to server[" + zkServer + "/" + zkRoot + "], ignored.");
+            return;
+        }
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         curatorFramework = CuratorFrameworkFactory.builder()
                 .connectString(zkServer).namespace(zkRoot).retryPolicy(retryPolicy).build();
@@ -47,7 +53,11 @@ public class ZkRegistryCenter implements RegisterCenter {
     }
 
     @Override
-    public void stop() {
+    public synchronized void stop() {
+        if (!running) {
+            log.info(" ===> zk client isn't running to server[" + zkServer + "/" + zkRoot + "], ignored.");
+            return;
+        }
         log.info("zk stop ...");
         curatorFramework.close();
     }
