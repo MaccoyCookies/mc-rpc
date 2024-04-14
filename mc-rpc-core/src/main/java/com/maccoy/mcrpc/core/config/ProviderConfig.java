@@ -19,21 +19,16 @@ import org.springframework.core.annotation.Order;
  * Description
  */
 @Configuration
-@Import({AppConfigProperties.class, ProviderConfigProperties.class, SpringBootTransport.class})
+@Import({AppProperties.class, ProviderProperties.class, SpringBootTransport.class})
 public class ProviderConfig {
 
     @Value("${server.port}")
     private Integer port;
 
-    @Autowired
-    private AppConfigProperties appConfigProperties;
-
-    @Autowired
-    private ProviderConfigProperties providerConfigProperties;
-
     @Bean
-    public ProviderBootstrap providerBootstrap() {
-        return new ProviderBootstrap(port, appConfigProperties, providerConfigProperties);
+    public ProviderBootstrap providerBootstrap(AppProperties appProperties,
+                                               ProviderProperties providerProperties) {
+        return new ProviderBootstrap(port, appProperties, providerProperties);
     }
 
     @Bean

@@ -1,5 +1,6 @@
 package com.maccoy.mcrpc.core.api;
 
+import com.maccoy.mcrpc.core.config.ConsumerProperties;
 import com.maccoy.mcrpc.core.meta.InstanceMeta;
 import lombok.Data;
 
@@ -22,6 +23,8 @@ public class RpcContext {
     LoadBalancer loadBalancer;
 
     private Map<String, String> parameters = new HashMap<>();
+
+    private ConsumerProperties consumerProperties;
 
     private static ThreadLocal<Map<String, String>> ContextParameters = ThreadLocal.withInitial(HashMap::new);
 

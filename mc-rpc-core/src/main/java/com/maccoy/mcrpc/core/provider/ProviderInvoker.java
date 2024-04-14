@@ -27,17 +27,14 @@ public class ProviderInvoker {
     /**
      * 改成map，针对不同的服务用不同的流控值
      */
-    private final int trafficControl;
+    // private final int trafficControl;
 
     private final Map<String, SlidingTimeWindow> windows = new HashMap<>();
 
-    private final Map<String, String> metas;
 
     public ProviderInvoker(ProviderBootstrap providerBootstrap) {
         this.providerBootstrap = providerBootstrap;
         this.skeleton = providerBootstrap.getSkeleton();
-        this.metas = providerBootstrap.getProviderConfigProperties().getMetas();
-        this.trafficControl = Integer.parseInt(metas.getOrDefault("tc", "20"));
     }
 
     public RpcResponse<Object> invoke(RpcRequest request) {
@@ -46,7 +43,8 @@ public class ProviderInvoker {
         String service = request.getService();
         synchronized (windows) {
             SlidingTimeWindow window = windows.computeIfAbsent(service, k -> new SlidingTimeWindow());
-            if (window.calcSum() > trafficControl) {
+            int trafficControl = Integer.parseInt(providerBootstrap.getProviderProperties().getMetas().getOrDefault("tc", "20"));
+            if (window.calcSum() >= trafficControl) {
                 System.out.println(window);
                 throw new RpcException("service " + service + " invoked in 30s/[" +
                         window.getSum() + "] larger than tpsLimit = " + trafficControl, RpcExceptionEnum.toExpMsg(RpcExceptionEnum.EXCEED_LIMIT_EX));
