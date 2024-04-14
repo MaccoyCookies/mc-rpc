@@ -13,3 +13,4 @@ mcrpc:
       dc: bj
       gray: false
       unit: B001
+      tc: 25

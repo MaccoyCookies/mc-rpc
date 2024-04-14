@@ -14,6 +14,7 @@ public enum RpcExceptionEnum {
      */
     SOCKET_TIMEOUT("X", "001", "http_invoke_timeout"),
     NO_SUCH_METHOD("X", "002", "method_not_exists"),
+    EXCEED_LIMIT_EX("X", "003", "tps_exceed_limit"),
     UNKNOWN("Z", "001", "unknown"),
     ;
 
