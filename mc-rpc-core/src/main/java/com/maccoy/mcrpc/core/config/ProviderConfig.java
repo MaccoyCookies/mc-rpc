@@ -8,6 +8,7 @@ import com.maccoy.mcrpc.core.transport.SpringBootTransport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -49,6 +50,10 @@ public class ProviderConfig {
         return new ZkRegistryCenter();
     }
 
-
+    @Bean
+    @ConditionalOnMissingBean
+    ApolloChangedListener provider_apolloChangedListener() {
+        return new ApolloChangedListener();
+    }
 
 }

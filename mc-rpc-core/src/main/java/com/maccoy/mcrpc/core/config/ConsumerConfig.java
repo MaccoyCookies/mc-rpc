@@ -13,6 +13,7 @@ import com.maccoy.mcrpc.core.registry.zk.ZkRegistryCenter;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -93,6 +94,12 @@ public class ConsumerConfig {
         rpcContext.getParameters().put("consumer.halfOpenDelay", String.valueOf(consumerProperties.getHalfOpenDelay()));
         rpcContext.setConsumerProperties(consumerProperties);
         return rpcContext;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    ApolloChangedListener consumer_apolloChangedListener() {
+        return new ApolloChangedListener();
     }
 
 }
