@@ -13,7 +13,9 @@ mcrpc:
       dc: bj
       gray: false
       unit: B001
-      tc: 25
+      tc: 300
+mcregistry:
+  servers: http://localhost:8484
 app:
   id: SampleApp
 apollo:

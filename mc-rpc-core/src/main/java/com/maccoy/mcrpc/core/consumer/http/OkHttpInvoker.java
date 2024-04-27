@@ -1,7 +1,6 @@
 package com.maccoy.mcrpc.core.consumer.http;
 
 import com.alibaba.fastjson.JSON;
-import com.maccoy.mcrpc.core.api.RpcException;
 import com.maccoy.mcrpc.core.api.RpcRequest;
 import com.maccoy.mcrpc.core.api.RpcResponse;
 import com.maccoy.mcrpc.core.consumer.HttpInvoker;
@@ -20,14 +19,14 @@ import java.util.concurrent.TimeUnit;
  * Description
  */
 @Slf4j
-public class    OkHttpInvoker implements HttpInvoker {
+public class OkHttpInvoker implements HttpInvoker {
 
-    private final static MediaType JSON_TYPE = MediaType.get("application/json; charset=utf-8");
+    final static MediaType JSONTYPE = MediaType.get("application/json; charset=utf-8");
 
-    private OkHttpClient okHttpClient;
+    OkHttpClient client;
 
     public OkHttpInvoker(int timeout) {
-        this.okHttpClient = new OkHttpClient.Builder()
+        client = new OkHttpClient.Builder()
                 .connectionPool(new ConnectionPool(16, 60, TimeUnit.SECONDS))
                 .readTimeout(timeout, TimeUnit.MILLISECONDS)
                 .writeTimeout(timeout, TimeUnit.MILLISECONDS)
@@ -38,17 +37,51 @@ public class    OkHttpInvoker implements HttpInvoker {
 
     @Override
     public RpcResponse<?> post(RpcRequest rpcRequest, String url) {
-        String requestJson = JSON.toJSONString(rpcRequest);
+        String reqJson = JSON.toJSONString(rpcRequest);
+        log.debug(" ===> reqJson = " + reqJson);
         Request request = new Request.Builder()
                 .url(url)
-                .post(RequestBody.create(requestJson, JSON_TYPE)).build();
+                .post(RequestBody.create(reqJson, JSONTYPE))
+                .build();
         try {
-            String responseJson = okHttpClient.newCall(request).execute().body().string();
-            log.debug("response: " + responseJson);
-            return JSON.parseObject(responseJson, RpcResponse.class);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            throw new RpcException(exception);
+            String respJson = client.newCall(request).execute().body().string();
+            log.debug(" ===> respJson = " + respJson);
+            RpcResponse<Object> rpcResponse = JSON.parseObject(respJson, RpcResponse.class);
+            return rpcResponse;
+        } catch (Exception e) {
+            // e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    public String post(String requestString, String url) {
+        log.debug(" ===> post  url = {}, requestString = {}", requestString, url);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(RequestBody.create(requestString, JSONTYPE))
+                .build();
+        try {
+            String respJson = client.newCall(request).execute().body().string();
+            log.debug(" ===> respJson = " + respJson);
+            return respJson;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String get(String url) {
+        log.debug(" ===> get url = " + url);
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+        try {
+            String respJson = client.newCall(request).execute().body().string();
+            log.debug(" ===> respJson = " + respJson);
+            return respJson;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
