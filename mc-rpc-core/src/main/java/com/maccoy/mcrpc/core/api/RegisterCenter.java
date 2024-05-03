@@ -5,6 +5,7 @@ import com.maccoy.mcrpc.core.meta.ServiceMeta;
 import com.maccoy.mcrpc.core.registry.ChangedListener;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Maccoy
@@ -62,6 +63,7 @@ public interface RegisterCenter {
         public void subscribe(ServiceMeta service, ChangedListener listener) {
 
         }
+
     }
 
 

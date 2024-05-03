@@ -9,6 +9,7 @@ import com.maccoy.mcrpc.core.cluster.GrayRouter;
 import com.maccoy.mcrpc.core.cluster.RandomLoadBalancer;
 import com.maccoy.mcrpc.core.consumer.ConsumerBootstrap;
 import com.maccoy.mcrpc.core.filter.ParamFilter;
+import com.maccoy.mcrpc.core.registry.mc.McRegistryCenter;
 import com.maccoy.mcrpc.core.registry.zk.ZkRegistryCenter;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +74,7 @@ public class ConsumerConfig {
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     public RegisterCenter registerCenter() {
-        return new ZkRegistryCenter();
+        return new McRegistryCenter();
     }
 
     @Bean

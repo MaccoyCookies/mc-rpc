@@ -20,7 +20,7 @@ public class ApolloChangedListener implements ApplicationContextAware {
 
     private ApplicationContext applicationContext;
 
-    @ApolloConfigChangeListener({"app1", "application"})
+    @ApolloConfigChangeListener({"application"})
     private void changeHandler(ConfigChangeEvent configChangeEvent) {
 
         for (String changedKey : configChangeEvent.changedKeys()) {

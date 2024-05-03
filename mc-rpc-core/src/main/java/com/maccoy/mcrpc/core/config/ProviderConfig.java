@@ -3,6 +3,7 @@ package com.maccoy.mcrpc.core.config;
 import com.maccoy.mcrpc.core.api.RegisterCenter;
 import com.maccoy.mcrpc.core.provider.ProviderBootstrap;
 import com.maccoy.mcrpc.core.provider.ProviderInvoker;
+import com.maccoy.mcrpc.core.registry.mc.McRegistryCenter;
 import com.maccoy.mcrpc.core.registry.zk.ZkRegistryCenter;
 import com.maccoy.mcrpc.core.transport.SpringBootTransport;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ public class ProviderConfig {
 
     @Bean
     public RegisterCenter registerCenter() {
-        return new ZkRegistryCenter();
+        return new McRegistryCenter();
     }
 
     @Bean
