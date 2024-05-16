@@ -31,7 +31,6 @@ import java.util.Map;
 @RestController
 @SpringBootApplication
 @Import({ConsumerConfig.class})
-@EnableMcConfig
 public class ConsumerApplication {
 
     public static void main(String[] args) {
@@ -64,7 +63,20 @@ public class ConsumerApplication {
     ApplicationRunner demoRunner() {
         return runner -> {
             testCase();
+            // testSlidingWindow();
         };
+    }
+
+    private void testSlidingWindow() {
+        for (int i = 0; i < 120; i++) {
+            try {
+                Thread.sleep(1000);
+                User user = userService.findById(1);
+                System.out.println(user);
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+        }
     }
 
     private void testCase() {

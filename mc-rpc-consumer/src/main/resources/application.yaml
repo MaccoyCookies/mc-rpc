@@ -16,6 +16,14 @@ mcrpc:
     halfOpenDelay: 60_000
     grayRatio: 0
 
+app:
+  id: SampleApp
+apollo:
+  cache-dir: /opt/apollo-2.2.0/data
+  meta: http://127.0.0.1:8080
+  bootstrap:
+    enabled: true
+    namespaces: app,application
 
 logging:
   level:

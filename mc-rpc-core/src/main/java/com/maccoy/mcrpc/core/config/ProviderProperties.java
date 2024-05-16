@@ -10,7 +10,7 @@ import java.util.Map;
 @Data
 @Configuration
 @ConfigurationProperties(prefix = "mcrpc.provider")
-public class ProviderConfigProperties {
+public class ProviderProperties {
 
     Map<String, String> metas = new HashMap<>();
 

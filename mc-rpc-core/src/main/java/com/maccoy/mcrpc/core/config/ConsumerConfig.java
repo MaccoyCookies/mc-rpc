@@ -7,24 +7,19 @@ import com.maccoy.mcrpc.core.api.Router;
 import com.maccoy.mcrpc.core.api.RpcContext;
 import com.maccoy.mcrpc.core.cluster.GrayRouter;
 import com.maccoy.mcrpc.core.cluster.RandomLoadBalancer;
-import com.maccoy.mcrpc.core.cluster.RoundLoadBalancer;
 import com.maccoy.mcrpc.core.consumer.ConsumerBootstrap;
-import com.maccoy.mcrpc.core.filter.CacheFilter;
-import com.maccoy.mcrpc.core.filter.MockFilter;
 import com.maccoy.mcrpc.core.filter.ParamFilter;
+import com.maccoy.mcrpc.core.registry.mc.McRegistryCenter;
 import com.maccoy.mcrpc.core.registry.zk.ZkRegistryCenter;
 import lombok.Data;
-import okhttp3.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 
-import java.io.File;
-import java.security.Provider;
 import java.util.List;
 
 /**
@@ -34,14 +29,14 @@ import java.util.List;
  */
 @Data
 @Configuration
-@Import({AppConfigProperties.class, ConsumerConfigProperties.class})
+@Import({AppProperties.class, ConsumerProperties.class})
 public class ConsumerConfig {
 
     @Autowired
-    AppConfigProperties appConfigProperties;
+    AppProperties appProperties;
 
     @Autowired
-    ConsumerConfigProperties consumerConfigProperties;
+    ConsumerProperties consumerProperties;
 
     @Bean
     public ConsumerBootstrap createConsumerBootstrap() {
@@ -63,7 +58,7 @@ public class ConsumerConfig {
 
     @Bean
     public Router router() {
-        return new GrayRouter(consumerConfigProperties.getGrayRatio());
+        return new GrayRouter(consumerProperties.getGrayRatio());
     }
 
     @Bean
@@ -79,7 +74,7 @@ public class ConsumerConfig {
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     public RegisterCenter registerCenter() {
-        return new ZkRegistryCenter();
+        return new McRegistryCenter();
     }
 
     @Bean
@@ -90,15 +85,22 @@ public class ConsumerConfig {
         rpcContext.setRouter(router);
         rpcContext.setLoadBalancer(loadBalancer);
         rpcContext.setFilters(filters);
-        rpcContext.getParameters().put("app.id", appConfigProperties.getId());
-        rpcContext.getParameters().put("app.namespace", appConfigProperties.getNamespace());
-        rpcContext.getParameters().put("app.env", appConfigProperties.getEnv());
-        rpcContext.getParameters().put("consumer.retries", String.valueOf(consumerConfigProperties.getRetries()));
-        rpcContext.getParameters().put("consumer.timeout", String.valueOf(consumerConfigProperties.getTimeout()));
-        rpcContext.getParameters().put("consumer.faultLimit", String.valueOf(consumerConfigProperties.getFaultLimit()));
-        rpcContext.getParameters().put("consumer.halfOpenInitialDelay", String.valueOf(consumerConfigProperties.getHalfOpenInitialDelay()));
-        rpcContext.getParameters().put("consumer.halfOpenDelay", String.valueOf(consumerConfigProperties.getHalfOpenDelay()));
+        rpcContext.getParameters().put("app.id", appProperties.getId());
+        rpcContext.getParameters().put("app.namespace", appProperties.getNamespace());
+        rpcContext.getParameters().put("app.env", appProperties.getEnv());
+        rpcContext.getParameters().put("consumer.retries", String.valueOf(consumerProperties.getRetries()));
+        rpcContext.getParameters().put("consumer.timeout", String.valueOf(consumerProperties.getTimeout()));
+        rpcContext.getParameters().put("consumer.faultLimit", String.valueOf(consumerProperties.getFaultLimit()));
+        rpcContext.getParameters().put("consumer.halfOpenInitialDelay", String.valueOf(consumerProperties.getHalfOpenInitialDelay()));
+        rpcContext.getParameters().put("consumer.halfOpenDelay", String.valueOf(consumerProperties.getHalfOpenDelay()));
+        rpcContext.setConsumerProperties(consumerProperties);
         return rpcContext;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    ApolloChangedListener consumer_apolloChangedListener() {
+        return new ApolloChangedListener();
     }
 
 }

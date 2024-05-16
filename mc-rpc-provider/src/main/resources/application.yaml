@@ -13,3 +13,14 @@ mcrpc:
       dc: bj
       gray: false
       unit: B001
+      tc: 300
+mcregistry:
+  servers: http://localhost:8484
+app:
+  id: SampleApp
+apollo:
+  cache-dir: /opt/apollo-2.2.0/data
+  meta: http://127.0.0.1:8080
+  bootstrap:
+    enabled: true
+    namespaces: application

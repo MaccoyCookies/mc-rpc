@@ -20,7 +20,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class InstanceMeta {
 
-    private String schema;
+    private String scheme;
 
     private String host;
 
@@ -35,8 +35,8 @@ public class InstanceMeta {
 
     private Map<String, String> parameters = new HashMap<>();
 
-    public InstanceMeta(String schema, String host, Integer port, String context) {
-        this.schema = schema;
+    public InstanceMeta(String scheme, String host, Integer port, String context) {
+        this.scheme = scheme;
         this.host = host;
         this.port = port;
         this.context = context;
@@ -51,7 +51,7 @@ public class InstanceMeta {
     }
 
     public String toUrl() {
-        return String.format("%s://%s:%d/%s", schema, host, port, context);
+        return String.format("%s://%s:%d/%s", scheme, host, port, context);
     }
 
     public String toMetas() {
