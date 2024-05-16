@@ -7,6 +7,7 @@ import com.maccoy.mcrpc.core.cluster.GrayRouter;
 import com.maccoy.mcrpc.core.config.ConsumerConfig;
 import com.maccoy.mcrpc.demo.api.IUserService;
 import com.maccoy.mcrpc.demo.api.User;
+import io.github.maccoycookies.mcconfig.client.annotation.EnableMcConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -30,6 +31,7 @@ import java.util.Map;
 @RestController
 @SpringBootApplication
 @Import({ConsumerConfig.class})
+@EnableMcConfig
 public class ConsumerApplication {
 
     public static void main(String[] args) {
